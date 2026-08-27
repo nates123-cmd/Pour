@@ -69,3 +69,53 @@ input[type="file"] { display: none; }
 h2 { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin: 26px 0 4px; font-weight: 700; }
 .held { color: var(--muted); font-size: 13px; line-height: 1.6; }
 .auth-shell { min-height: 100vh; background: var(--bg); }
+
+/* ---- bottom nav ---------------------------------------------------------- */
+/* No stacking context on the page wrapper, so nothing can be buried under it. */
+.bottomnav {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+  display: flex; justify-content: space-around; align-items: flex-start;
+  padding: 10px 0 calc(22px + env(safe-area-inset-bottom, 0px));
+  background: color-mix(in oklab, var(--bg) 84%, transparent);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border-top: 1px solid var(--line);
+}
+.navbtn {
+  appearance: none; background: transparent; border: 0; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  color: var(--muted); padding: 4px 16px; font-size: 11px; letter-spacing: .04em;
+}
+.navbtn.active { color: var(--text); }
+.wrap { padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px)); }
+
+/* ---- lookup -------------------------------------------------------------- */
+.lookup { display: flex; gap: 8px; }
+.lookup input {
+  flex: 1; min-width: 0; padding: 13px 14px; font-size: 16px; /* 16px: iOS won't zoom */
+  border-radius: var(--radius); border: 1px solid var(--line);
+  background: var(--surface); color: var(--text);
+}
+.lookup input::placeholder { color: var(--muted); }
+.lookup button {
+  padding: 13px 18px; border: 0; border-radius: var(--radius); cursor: pointer;
+  background: var(--accent); color: #fff; font-size: 15px; font-weight: 600;
+}
+.lookup button:disabled { opacity: .5; }
+
+/* ---- stars --------------------------------------------------------------- */
+.stars { display: flex; gap: 2px; margin-top: 6px; }
+.star {
+  appearance: none; background: none; border: 0; cursor: pointer;
+  color: var(--muted); line-height: 1; padding: 2px 3px;
+}
+.star.on { color: var(--accent); }
+
+.rateline { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+.ratelbl { color: var(--muted); font-size: 12px; letter-spacing: .1em; font-weight: 700; }
+
+.row.logged { align-items: flex-start; }
+.kill {
+  appearance: none; background: none; border: 0; cursor: pointer;
+  color: var(--muted); font-size: 22px; line-height: 1; padding: 0 2px;
+}
