@@ -1,0 +1,27 @@
+{
+ "_note": "Hand-built fixture: a plausible NYC by-the-bottle red list. Exercises the ranking math without an API key. Axis scores here are hand-assigned on the same scale as data/axes-wine-v1.json.",
+ "entries": [
+  {"raw":"Arianna Occhipinti 'SP68' Rosso, Sicilia 2022 — 78","kind":"wine","producer":"Arianna Occhipinti","wine":"SP68 Rosso","appellation":"Sicilia","region":"Sicily","country":"Italy","varietal":"Frappato/Nero d'Avola","vintage":2022,"price_glass":null,"price_bottle":78,"section":"Reds"},
+  {"raw":"Caymus Cabernet Sauvignon, Napa Valley 2021 — 145","kind":"wine","producer":"Caymus","wine":null,"appellation":"Napa Valley","region":"Napa","country":"United States","varietal":"Cabernet Sauvignon","vintage":2021,"price_glass":null,"price_bottle":145,"section":"Reds"},
+  {"raw":"Jean Foillard Morgon 'Cote du Py' 2022 — 96","kind":"wine","producer":"Jean Foillard","wine":"Cote du Py","appellation":"Morgon","region":"Beaujolais","country":"France","varietal":"Gamay","vintage":2022,"price_glass":null,"price_bottle":96,"section":"Reds"},
+  {"raw":"Produttori del Barbaresco, Barbaresco 2019 — 130","kind":"wine","producer":"Produttori del Barbaresco","wine":null,"appellation":"Barbaresco","region":"Piedmont","country":"Italy","varietal":"Nebbiolo","vintage":2019,"price_glass":null,"price_bottle":130,"section":"Reds"},
+  {"raw":"Bernard Baudry Chinon 'Les Granges' 2022 — 68","kind":"wine","producer":"Bernard Baudry","wine":"Les Granges","appellation":"Chinon","region":"Loire","country":"France","varietal":"Cabernet Franc","vintage":2022,"price_glass":null,"price_bottle":68,"section":"Reds"},
+  {"raw":"Orin Swift 'Abstract' Red Blend, California 2022 — 92","kind":"wine","producer":"Orin Swift","wine":"Abstract","appellation":"California","region":"California","country":"United States","varietal":"Red Blend","vintage":2022,"price_glass":null,"price_bottle":92,"section":"Reds"},
+  {"raw":"Frank Cornelissen 'Susucaru' Rosso, Etna 2023 — 88","kind":"wine","producer":"Frank Cornelissen","wine":"Susucaru Rosso","appellation":"Etna","region":"Sicily","country":"Italy","varietal":"Nerello Mascalese","vintage":2023,"price_glass":null,"price_bottle":88,"section":"Reds"},
+  {"raw":"Chateau Musar Rouge, Bekaa Valley 2017 — 115","kind":"wine","producer":"Chateau Musar","wine":null,"appellation":"Bekaa Valley","region":"Bekaa","country":"Lebanon","varietal":"Cinsault/Cabernet/Carignan","vintage":2017,"price_glass":null,"price_bottle":115,"section":"Reds"},
+  {"raw":"House Red, Italy NV — 45","kind":"wine","producer":null,"wine":"House Red","appellation":null,"region":null,"country":"Italy","varietal":null,"vintage":null,"price_glass":14,"price_bottle":45,"section":"Reds"},
+  {"raw":"Penfolds Bin 28 Shiraz, South Australia 2021 — 98","kind":"wine","producer":"Penfolds","wine":"Bin 28","appellation":"South Australia","region":"South Australia","country":"Australia","varietal":"Shiraz","vintage":2021,"price_glass":null,"price_bottle":98,"section":"Reds"}
+ ],
+ "scores": [
+  {"raw":"Arianna Occhipinti 'SP68' Rosso, Sicilia 2022 — 78","tannin":3,"savory":7,"aromatic_lift":9,"confidence":0.9,"basis":"Frappato-led Sicilian, low tannin, high perfume"},
+  {"raw":"Caymus Cabernet Sauvignon, Napa Valley 2021 — 145","tannin":7,"savory":2,"aromatic_lift":2,"confidence":0.95,"basis":"ripe oaked Napa Cabernet, sweet-fruited"},
+  {"raw":"Jean Foillard Morgon 'Cote du Py' 2022 — 96","tannin":4,"savory":6,"aromatic_lift":7,"confidence":0.9,"basis":"cru Beaujolais, whole-cluster, perfumed"},
+  {"raw":"Produttori del Barbaresco, Barbaresco 2019 — 130","tannin":8,"savory":7,"aromatic_lift":7,"confidence":0.95,"basis":"classic Nebbiolo, high tannin and high lift"},
+  {"raw":"Bernard Baudry Chinon 'Les Granges' 2022 — 68","tannin":5,"savory":8,"aromatic_lift":7,"confidence":0.9,"basis":"Loire Cabernet Franc, herbal and graphite-driven"},
+  {"raw":"Orin Swift 'Abstract' Red Blend, California 2022 — 92","tannin":6,"savory":2,"aromatic_lift":2,"confidence":0.9,"basis":"heavily oaked jammy California blend"},
+  {"raw":"Frank Cornelissen 'Susucaru' Rosso, Etna 2023 — 88","tannin":3,"savory":8,"aromatic_lift":9,"confidence":0.85,"basis":"volcanic Etna, low-intervention, high-toned"},
+  {"raw":"Chateau Musar Rouge, Bekaa Valley 2017 — 115","tannin":6,"savory":9,"aromatic_lift":7,"confidence":0.9,"basis":"aged Lebanese, very savory and volatile-lifted"},
+  {"raw":"House Red, Italy NV — 45","tannin":5,"savory":4,"aromatic_lift":4,"confidence":0.25,"basis":"no producer or appellation given, cannot infer style"},
+  {"raw":"Penfolds Bin 28 Shiraz, South Australia 2021 — 98","tannin":6,"savory":3,"aromatic_lift":3,"confidence":0.9,"basis":"warm-climate Shiraz, ripe and oak-framed"}
+ ]
+}

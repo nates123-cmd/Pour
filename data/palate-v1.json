@@ -1,0 +1,231 @@
+{
+ "version": "palate-v1",
+ "category": "wine (red only)",
+ "builtFrom": {
+  "source": "wine.com MyWine",
+  "ratedBottles": 23,
+  "dateRange": "2025-10-08..2026-08-02",
+  "coverageGap": "all 23 are red wines; no white, rose, sparkling, or any beer/whiskey data"
+ },
+ "model": {
+  "type": "ridge regression on style axes",
+  "axesUsed": [
+   "tannin",
+   "savory",
+   "aromaticLift"
+  ],
+  "alpha": 3.0,
+  "coefStandardized": {
+   "tannin": -0.1504,
+   "savory": 0.2889,
+   "aromaticLift": 0.2155
+  },
+  "axisMean": {
+   "tannin": 4.826,
+   "savory": 5.261,
+   "aromaticLift": 5.13
+  },
+  "axisSd": {
+   "tannin": 1.239,
+   "savory": 1.39,
+   "aromaticLift": 1.872
+  },
+  "intercept": 3.8043,
+  "predict": "rating = intercept + sum_k coef[k] * (axis[k] - axisMean[k]) / axisSd[k]"
+ },
+ "validation": {
+  "method": "leave-one-out",
+  "looRmse": 0.614,
+  "looMae": 0.448,
+  "looR2": 0.326,
+  "baselineRmse": 0.782,
+  "errorReductionVsBaselinePct": 21.5,
+  "withinHalfStar": "14/23",
+  "CAVEAT": "axesUsed was chosen by searching subsets on this same LOO score, so these numbers are optimistic. The unbiased pre-registered 7-axis model scored LOO RMSE 0.657 vs baseline 0.782. Treat ~0.66 as the honest error, not 0.61."
+ },
+ "interpretation": {
+  "dominantAxis": "one latent dimension does nearly all the work: fresh/savory/high-toned vs ripe/oaky/full-bodied",
+  "evidence": "single-axis model (aromaticLift alone, LOO RMSE 0.637) beats the full 7-axis model (0.657); the 7 axes are highly collinear",
+  "likes": "aromatic lift, savory/earthy character, moderate tannin, low new oak, non-jammy fruit",
+  "dislikes": "new oak, jammy ripeness, heavy body",
+  "unresolved": "two Sangiovese-based Tuscans rated in opposite directions (Sassarello 5, Chianti Classico 2.5) and are the two largest errors; not explained by these axes"
+ },
+ "looPredictions": [
+  {
+   "id": "2523984",
+   "name": "Domaine Fabrice Gasnier Chinon Les Graves 2023",
+   "actual": 4.5,
+   "pred": 4.6,
+   "err": 0.1
+  },
+  {
+   "id": "1955159",
+   "name": "Paxton Vineyards AAA Shiraz-Grenache-Mourvedre 2022",
+   "actual": 3,
+   "pred": 3.08,
+   "err": 0.08
+  },
+  {
+   "id": "2945931",
+   "name": "Chateau Mourgues du Gres Costieres de Nimes Galets Rouge 2023",
+   "actual": 4.5,
+   "pred": 3.88,
+   "err": -0.62
+  },
+  {
+   "id": "1097895",
+   "name": "Leyda Las Brisas Pinot Noir 2020",
+   "actual": 4,
+   "pred": 4.08,
+   "err": 0.08
+  },
+  {
+   "id": "3432738",
+   "name": "Tornatore Etna Rosso 2022",
+   "actual": 4.5,
+   "pred": 4.59,
+   "err": 0.09
+  },
+  {
+   "id": "4122645",
+   "name": "Domaine Gilles Coperet Fleurie La Madone 2022",
+   "actual": 4,
+   "pred": 4.14,
+   "err": 0.14
+  },
+  {
+   "id": "4010912",
+   "name": "Patrizi Barbaresco 2022",
+   "actual": 4,
+   "pred": 4.16,
+   "err": 0.16
+  },
+  {
+   "id": "4056257",
+   "name": "Domaine Gaget Cote du Py Morgon 2023",
+   "actual": 3.5,
+   "pred": 4.22,
+   "err": 0.72
+  },
+  {
+   "id": "2137589",
+   "name": "Domaine de l'Amandine Cotes du Rhone Villages Seguret 2022",
+   "actual": 4.5,
+   "pred": 3.88,
+   "err": -0.62
+  },
+  {
+   "id": "2562412",
+   "name": "Shatter Grenache 2022",
+   "actual": 2.5,
+   "pred": 3.17,
+   "err": 0.67
+  },
+  {
+   "id": "4124320",
+   "name": "Morgante Nero d'Avola 2023",
+   "actual": 4.5,
+   "pred": 3.68,
+   "err": -0.82
+  },
+  {
+   "id": "3501620",
+   "name": "Nicosia Frappato di Vittoria Sabbie di Sutta 2024",
+   "actual": 4.5,
+   "pred": 4.58,
+   "err": 0.08
+  },
+  {
+   "id": "3002952",
+   "name": "Soter Vineyards Planet Oregon Pinot Noir 2023",
+   "actual": 4,
+   "pred": 4.08,
+   "err": 0.08
+  },
+  {
+   "id": "1007344",
+   "name": "Los Vascos Cromas Gran Reserva Carmenere 2020",
+   "actual": 2,
+   "pred": 3.24,
+   "err": 1.24
+  },
+  {
+   "id": "2794032",
+   "name": "La Lecciaia Sassarello 2018",
+   "actual": 5,
+   "pred": 3.55,
+   "err": -1.45
+  },
+  {
+   "id": "3746726",
+   "name": "Pikes Eastside Shiraz 2022",
+   "actual": 3,
+   "pred": 3.31,
+   "err": 0.31
+  },
+  {
+   "id": "2658091",
+   "name": "Castello di Bossi Chianti Classico 2022",
+   "actual": 2.5,
+   "pred": 3.81,
+   "err": 1.31
+  },
+  {
+   "id": "2155466",
+   "name": "Talbott Kali Hart Pinot Noir 2022",
+   "actual": 4,
+   "pred": 3.71,
+   "err": -0.29
+  },
+  {
+   "id": "1886265",
+   "name": "Duorum Altitude 2021",
+   "actual": 3.5,
+   "pred": 3.35,
+   "err": -0.15
+  },
+  {
+   "id": "2852772",
+   "name": "Mauro Molino Langhe Nebbiolo 2023",
+   "actual": 4,
+   "pred": 4.28,
+   "err": 0.28
+  },
+  {
+   "id": "2918545",
+   "name": "Chateau de Rouanne Vinsobres Rouge 2021",
+   "actual": 4,
+   "pred": 3.92,
+   "err": -0.08
+  },
+  {
+   "id": "2031487",
+   "name": "Bodegas Breca Garnacha 2021",
+   "actual": 4,
+   "pred": 3.34,
+   "err": -0.66
+  },
+  {
+   "id": "1806220",
+   "name": "Frida Kahlo Red Blend 2019",
+   "actual": 3.5,
+   "pred": 3.25,
+   "err": -0.25
+  }
+ ],
+ "rankingPerformance": {
+  "note": "this is the metric that matters for the product: pick the best bottle off a list, not predict an exact score",
+  "pairwiseAccuracyLoo": 0.727,
+  "pairsEvaluated": 205,
+  "coinFlip": 0.5,
+  "clearPreferencePairsAccuracy": 0.923,
+  "clearPairsN": 65,
+  "clearPairsDefinition": "bottles at least 1.5 stars apart",
+  "simulated6BottleMenu": {
+   "modelPickAvgStars": 4.27,
+   "bestAvailableAvgStars": 4.59,
+   "randomPickAvgStars": 3.8,
+   "gapCaptured": 0.589
+  }
+ }
+}

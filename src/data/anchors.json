@@ -1,0 +1,30 @@
+{
+ "scale": "1-10 per axis, style-descriptive not quality",
+ "axes": ["acid","body","tannin","oak","fruitRipeness","savory","aromaticLift"],
+ "note": "Scored from varietal + appellation + producer style. No tasting notes used.",
+ "wines": [
+  {"id":"2523984","name":"Domaine Fabrice Gasnier Chinon Les Graves 2023","acid":8,"body":5,"tannin":5,"oak":2,"fruitRipeness":3,"savory":8,"aromaticLift":7,"myRating":4.5},
+  {"id":"1955159","name":"Paxton Vineyards AAA Shiraz-Grenache-Mourvedre 2022","acid":4,"body":7,"tannin":5,"oak":5,"fruitRipeness":8,"savory":3,"aromaticLift":3,"myRating":3},
+  {"id":"2945931","name":"Chateau Mourgues du Gres Costieres de Nimes Galets Rouge 2023","acid":6,"body":6,"tannin":5,"oak":3,"fruitRipeness":6,"savory":6,"aromaticLift":5,"myRating":4.5},
+  {"id":"1097895","name":"Leyda Las Brisas Pinot Noir 2020","acid":7,"body":4,"tannin":3,"oak":3,"fruitRipeness":5,"savory":5,"aromaticLift":6,"myRating":4},
+  {"id":"3432738","name":"Tornatore Etna Rosso 2022","acid":8,"body":4,"tannin":6,"oak":2,"fruitRipeness":3,"savory":8,"aromaticLift":8,"myRating":4.5},
+  {"id":"4122645","name":"Domaine Gilles Coperet Fleurie La Madone 2022","acid":7,"body":4,"tannin":3,"oak":2,"fruitRipeness":5,"savory":4,"aromaticLift":8,"myRating":4},
+  {"id":"4010912","name":"Patrizi Barbaresco 2022","acid":8,"body":6,"tannin":7,"oak":4,"fruitRipeness":4,"savory":7,"aromaticLift":7,"myRating":4},
+  {"id":"4056257","name":"Domaine Gaget Cote du Py Morgon 2023","acid":7,"body":5,"tannin":4,"oak":3,"fruitRipeness":5,"savory":6,"aromaticLift":6,"myRating":3.5},
+  {"id":"2137589","name":"Domaine de l'Amandine Cotes du Rhone Villages Seguret 2022","acid":6,"body":6,"tannin":5,"oak":3,"fruitRipeness":6,"savory":6,"aromaticLift":5,"myRating":4.5},
+  {"id":"2562412","name":"Shatter Grenache 2022","acid":4,"body":8,"tannin":5,"oak":6,"fruitRipeness":9,"savory":3,"aromaticLift":3,"myRating":2.5},
+  {"id":"4124320","name":"Morgante Nero d'Avola 2023","acid":6,"body":6,"tannin":5,"oak":3,"fruitRipeness":6,"savory":5,"aromaticLift":5,"myRating":4.5},
+  {"id":"3501620","name":"Nicosia Frappato di Vittoria Sabbie di Sutta 2024","acid":8,"body":3,"tannin":2,"oak":1,"fruitRipeness":4,"savory":5,"aromaticLift":9,"myRating":4.5},
+  {"id":"3002952","name":"Soter Vineyards Planet Oregon Pinot Noir 2023","acid":7,"body":4,"tannin":3,"oak":3,"fruitRipeness":5,"savory":5,"aromaticLift":6,"myRating":4},
+  {"id":"1007344","name":"Los Vascos Cromas Gran Reserva Carmenere 2020","acid":4,"body":8,"tannin":6,"oak":7,"fruitRipeness":8,"savory":4,"aromaticLift":2,"myRating":2},
+  {"id":"2794032","name":"La Lecciaia Sassarello 2018","acid":6,"body":7,"tannin":6,"oak":6,"fruitRipeness":6,"savory":6,"aromaticLift":4,"myRating":5},
+  {"id":"3746726","name":"Pikes Eastside Shiraz 2022","acid":5,"body":7,"tannin":5,"oak":5,"fruitRipeness":7,"savory":4,"aromaticLift":3,"myRating":3},
+  {"id":"2658091","name":"Castello di Bossi Chianti Classico 2022","acid":8,"body":6,"tannin":6,"oak":4,"fruitRipeness":5,"savory":6,"aromaticLift":4,"myRating":2.5},
+  {"id":"2155466","name":"Talbott Kali Hart Pinot Noir 2022","acid":6,"body":5,"tannin":3,"oak":4,"fruitRipeness":6,"savory":4,"aromaticLift":5,"myRating":4},
+  {"id":"1886265","name":"Duorum Altitude 2021","acid":5,"body":7,"tannin":6,"oak":5,"fruitRipeness":7,"savory":5,"aromaticLift":3,"myRating":3.5},
+  {"id":"2852772","name":"Mauro Molino Langhe Nebbiolo 2023","acid":8,"body":5,"tannin":6,"oak":3,"fruitRipeness":4,"savory":7,"aromaticLift":7,"myRating":4},
+  {"id":"2918545","name":"Chateau de Rouanne Vinsobres Rouge 2021","acid":6,"body":6,"tannin":5,"oak":3,"fruitRipeness":6,"savory":6,"aromaticLift":5,"myRating":4},
+  {"id":"2031487","name":"Bodegas Breca Garnacha 2021","acid":5,"body":7,"tannin":5,"oak":5,"fruitRipeness":8,"savory":4,"aromaticLift":4,"myRating":4},
+  {"id":"1806220","name":"Frida Kahlo Red Blend 2019","acid":5,"body":7,"tannin":5,"oak":5,"fruitRipeness":7,"savory":4,"aromaticLift":3,"myRating":3.5}
+ ]
+}

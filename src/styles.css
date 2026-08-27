@@ -1,0 +1,71 @@
+/* Design tokens live on :root, per suite convention. */
+:root {
+  --bg: #1b1013;
+  --surface: #251a1e;
+  --surface-2: #2f2126;
+  --line: #3d2b31;
+  --text: #f2e9ea;
+  --muted: #a08f93;
+  --accent: #c2536b;
+  --accent-dim: #7d3344;
+  --good: #7fa66a;
+  --radius: 12px;
+  --pad: 16px;
+  font-family: ui-sans-serif, -apple-system, system-ui, "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  /* Chrome is not selectable; user content re-enables it below. */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+input, textarea, .selectable { -webkit-user-select: text; user-select: text; }
+
+.wrap { max-width: 620px; margin: 0 auto; padding: var(--pad) var(--pad) 64px; }
+
+h1 { font-size: 20px; letter-spacing: .02em; margin: 8px 0 2px; }
+.sub { color: var(--muted); font-size: 13px; margin: 0 0 20px; }
+
+.shoot {
+  display: block; width: 100%; padding: 18px; border: 0; cursor: pointer;
+  background: var(--accent); color: #fff; font-size: 16px; font-weight: 600;
+  border-radius: var(--radius);
+}
+.shoot:disabled { opacity: .55; cursor: default; }
+input[type="file"] { display: none; }
+
+.note { color: var(--muted); font-size: 12.5px; margin-top: 10px; line-height: 1.5; }
+.err {
+  background: #3a1d24; border: 1px solid #6b2f3d; color: #f6d6dc;
+  padding: 12px 14px; border-radius: var(--radius); font-size: 14px; margin-top: 14px;
+}
+
+.thumb { width: 100%; border-radius: var(--radius); margin-top: 16px; display: block; }
+
+.pick {
+  margin-top: 20px; padding: 16px; border-radius: var(--radius);
+  background: var(--surface-2); border: 1px solid var(--accent);
+}
+.pick .lbl { color: var(--accent); font-size: 11px; letter-spacing: .12em; font-weight: 700; }
+.pick .name { font-size: 17px; margin: 6px 0 4px; line-height: 1.35; }
+.pick .why { color: var(--muted); font-size: 13.5px; }
+
+.row {
+  display: flex; gap: 12px; align-items: baseline;
+  padding: 12px 0; border-bottom: 1px solid var(--line);
+}
+.rank { color: var(--muted); font-size: 12px; min-width: 20px; font-variant-numeric: tabular-nums; }
+.name { flex: 1; font-size: 14.5px; line-height: 1.4; }
+.price { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+.why2 { color: var(--muted); font-size: 12.5px; margin-top: 3px; }
+
+h2 { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin: 26px 0 4px; font-weight: 700; }
+.held { color: var(--muted); font-size: 13px; line-height: 1.6; }
+.auth-shell { min-height: 100vh; background: var(--bg); }
