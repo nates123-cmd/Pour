@@ -1,4 +1,4 @@
-# Pour
+# Sip
 
 Photograph a drinks list, get it ranked against your own palate.
 
@@ -14,7 +14,7 @@ Two rules shaped this:
 **The ranking math is local.** `src/lib/palate.js` applies the palate-v1 coefficients in plain
 JS. The model only supplies style estimates. When a recommendation looks wrong you can tell
 whether the axis estimate was bad or the coefficients were, instead of shrugging at a black box.
-Verified to produce the identical order as `pour.py` on the same fixture.
+Verified to produce the identical order as `sip.py` on the same fixture.
 
 **Cheap model where errors are visible, capable model where they are not.** A garbled wine name
 is obvious on screen and you can correct it, so reading the photo runs on Gemini Flash. A wrong
@@ -52,10 +52,10 @@ is bundle size.
 
 ## The offline harness
 
-`pour.py` is the CLI the ranking math was proven in. It is not the product, but it stays because
+`sip.py` is the CLI the ranking math was proven in. It is not the product, but it stays because
 it exercises the ranking end to end with no auth and no network:
 
-    ./.venv/bin/python pour.py rank --dry-run fixtures/sample_menu.json --verbose
+    ./.venv/bin/python sip.py rank --dry-run fixtures/sample_menu.json --verbose
 
 ## Honest limits
 
@@ -82,4 +82,4 @@ it exercises the ranking end to end with no auth and no network:
     src/data/palate.json   fitted model, coefficients, validation
     src/data/anchors.json  your 23 bottles scored on 7 style axes
     data/winecom-mywine.json   54 captured items, 23 rated
-    pour.py                offline harness for the ranking math
+    sip.py                offline harness for the ranking math

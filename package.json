@@ -1,12 +1,12 @@
 {
-  "name": "pour",
+  "name": "sip",
   "private": true,
   "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:gh-pages": "BASE_URL=/Pour/ vite build",
+    "build:gh-pages": "BASE_URL=/Sip/ vite build",
     "preview": "vite preview"
   },
   "dependencies": {

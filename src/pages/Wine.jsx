@@ -49,7 +49,7 @@ export default function Wine() {
 
   return (
     <div className="wrap">
-      <h1>Pour</h1>
+      <h1>Sip</h1>
       <p className="sub">Photograph a wine list. Get it ranked against your palate.</p>
 
       <button className="shoot" disabled={busy} onClick={() => fileRef.current?.click()}>

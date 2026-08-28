@@ -6,7 +6,7 @@
  * axis estimate was bad or the coefficients were, instead of shrugging at a
  * black box.
  *
- * Ported from pour.py and verified to produce the identical order on
+ * Ported from sip.py and verified to produce the identical order on
  * fixtures/sample_menu.json.
  */
 import palate from '../data/palate.json'

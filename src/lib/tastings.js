@@ -1,5 +1,5 @@
 /**
- * Reads and writes to pour_tastings.
+ * Reads and writes to sip_tastings.
  *
  * RLS is `auth.uid() = user_id` on all four verbs, and user_id defaults to
  * auth.uid(), so a signed-out client gets an empty list rather than an error.
@@ -16,7 +16,7 @@ export async function listTastings(category) {
   if (!sess?.session) throw new Error('Signed out. Sign in and try again.')
 
   const { data, error } = await supabase
-    .from('pour_tastings')
+    .from('sip_tastings')
     .select(COLS)
     .eq('category', category)
     .order('created_at', { ascending: false })
@@ -47,17 +47,17 @@ export async function addTasting({ category, rating, lookup, query, notes }) {
     source: 'lookup',
   }
 
-  const { data, error } = await supabase.from('pour_tastings').insert(row).select(COLS).single()
+  const { data, error } = await supabase.from('sip_tastings').insert(row).select(COLS).single()
   if (error) throw new Error(error.message)
   return data
 }
 
 export async function rateTasting(id, rating) {
-  const { error } = await supabase.from('pour_tastings').update({ rating }).eq('id', id)
+  const { error } = await supabase.from('sip_tastings').update({ rating }).eq('id', id)
   if (error) throw new Error(error.message)
 }
 
 export async function deleteTasting(id) {
-  const { error } = await supabase.from('pour_tastings').delete().eq('id', id)
+  const { error } = await supabase.from('sip_tastings').delete().eq('id', id)
   if (error) throw new Error(error.message)
 }

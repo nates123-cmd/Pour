@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Pour - photograph a drinks list, get it ranked against your own palate.
+Sip - photograph a drinks list, get it ranked against your own palate.
 
 Pipeline:
   1. prep image (HEIC -> JPEG, downscale)          local, sips
@@ -12,8 +12,8 @@ Step 4 is deliberately NOT done by the model: the ranking math stays auditable
 and reproducible. The model only supplies style estimates.
 
 Usage:
-  pour.py rank menu.jpg [--top N] [--max-price 80] [--json] [--verbose]
-  pour.py rank --dry-run fixtures/sample_menu.json     # no API key needed
+  sip.py rank menu.jpg [--top N] [--max-price 80] [--json] [--verbose]
+  sip.py rank --dry-run fixtures/sample_menu.json     # no API key needed
 """
 
 import argparse, base64, json, os, subprocess, sys, tempfile
@@ -73,7 +73,7 @@ class ScoredMenu(BaseModel):
 def prep_image(path: Path) -> tuple[bytes, str]:
     """Convert HEIC->JPEG and downscale. Returns (bytes, media_type)."""
     suffix = path.suffix.lower()
-    tmpdir = Path(tempfile.mkdtemp(prefix="pour_"))
+    tmpdir = Path(tempfile.mkdtemp(prefix="sip_"))
     work = tmpdir / "menu.jpg"
 
     if suffix in (".heic", ".heif", ".png", ".tif", ".tiff", ".webp"):
@@ -287,7 +287,7 @@ def load_env():
 
 def main():
     load_env()
-    ap = argparse.ArgumentParser(prog="pour")
+    ap = argparse.ArgumentParser(prog="sip")
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("rank", help="rank a drinks list photo against your palate")
     r.add_argument("image", nargs="?")
