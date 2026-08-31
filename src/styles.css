@@ -1,25 +1,52 @@
-/* Design tokens live on :root, per suite convention. */
+/* Design tokens live on :root, per suite convention.
+ *
+ * The look is a restaurant wine list, not a dashboard: one editorial serif
+ * carries every proper noun, the UI sans is reserved for labels and controls,
+ * and grouping is done with space and hairlines rather than bordered cards.
+ * Gold is the rating colour, claret is the action colour — they never swap. */
 :root {
-  --bg: #1b1013;
-  --surface: #251a1e;
-  --surface-2: #2f2126;
-  --line: #3d2b31;
-  --text: #f2e9ea;
-  --muted: #a08f93;
-  --accent: #c2536b;
-  --accent-dim: #7d3344;
-  --good: #7fa66a;
-  --radius: 12px;
-  --pad: 16px;
-  font-family: ui-sans-serif, -apple-system, system-ui, "Segoe UI", sans-serif;
+  /* ground ------------------------------------------------------------- */
+  --bg: #170f11;
+  --bg-lift: #211519;      /* top-of-page glow, keeps the flat field alive */
+  --surface: #221619;
+  --line: #35242b;         /* hairlines you should notice */
+  --line-soft: #271a20;    /* hairlines you should not */
+
+  /* Text in three tiers, not two. Everything secondary used to be --muted,
+   * which flattened prices and rank numbers into the prose beside them. */
+  --text: #f4ecec;
+  --muted: #b09ea2;        /* supporting prose */
+  --faint: #7c6a6f;        /* rank numbers, prices, counts */
+
+  /* Action vs rating: two roles, two colours, never interchanged. */
+  --accent: #c8425f;
+  --accent-lo: #8e2b41;
+  --gold: #d9a441;
+  --gold-lo: #6d5227;
+
+  --r-sm: 8px;
+  --r-md: 4px;
+  --pad: 18px;
+
+  /* One display face, one UI face. The serif is the app's identity; the
+   * system sans is a deliberate second voice for chrome, not a default. */
+  --serif: 'Instrument Serif', 'Hoefler Text', 'Iowan Old Style', Georgia, serif;
+  --sans: ui-sans-serif, -apple-system, system-ui, 'Segoe UI', sans-serif;
+
+  font-family: var(--sans);
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
-  background: var(--bg);
   color: var(--text);
+  background: var(--bg);
+  /* Cheap depth: the field is no longer one flat swatch. */
+  background-image: radial-gradient(120% 60% at 50% 0%, var(--bg-lift) 0%, transparent 70%);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   /* Chrome is not selectable; user content re-enables it below. */
   -webkit-user-select: none;
   user-select: none;
@@ -28,46 +55,101 @@ body {
 
 input, textarea, .selectable { -webkit-user-select: text; user-select: text; }
 
-.wrap { max-width: 620px; margin: 0 auto; padding: var(--pad) var(--pad) 64px; }
-
-h1 { font-size: 20px; letter-spacing: .02em; margin: 8px 0 2px; }
-.sub { color: var(--muted); font-size: 13px; margin: 0 0 20px; }
-
-.shoot {
-  display: block; width: 100%; padding: 18px; border: 0; cursor: pointer;
-  background: var(--accent); color: #fff; font-size: 16px; font-weight: 600;
-  border-radius: var(--radius);
+.wrap {
+  max-width: 620px; margin: 0 auto;
+  padding: 28px var(--pad) calc(104px + env(safe-area-inset-bottom, 0px));
 }
-.shoot:disabled { opacity: .55; cursor: default; }
+
+/* ---- type scale ----------------------------------------------------------
+ * 10 to 34px is better than a 3x range. The old scale ran 12 to 20 and read
+ * as a single size with slight variations. */
+h1 {
+  font-family: var(--serif); font-weight: 400;
+  font-size: 34px; line-height: 1.05; letter-spacing: -.01em;
+  margin: 0 0 6px;
+}
+.sub { color: var(--muted); font-size: 13.5px; line-height: 1.5; margin: 0 0 26px; max-width: 34ch; }
+
+/* Section heads: a caps label plus a rule running out to the margin, so they
+ * divide the page instead of just sitting on it. */
+h2 {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 10.5px; letter-spacing: .18em; font-weight: 700;
+  color: var(--faint); margin: 34px 0 6px; text-transform: uppercase;
+}
+h2::after { content: ''; flex: 1; height: 1px; background: var(--line-soft); }
+
+/* ---- primary action ------------------------------------------------------ */
+.shoot {
+  display: block; width: 100%; padding: 19px; cursor: pointer;
+  font-family: var(--sans); font-size: 15px; font-weight: 600; letter-spacing: .02em;
+  color: #fff; border-radius: var(--r-sm);
+  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-lo) 100%);
+  border: 0; border-top: 1px solid #e0748a;   /* a lit top edge, so it has a form */
+  box-shadow: 0 1px 0 rgba(0,0,0,.4), 0 10px 24px -12px var(--accent-lo);
+}
+.shoot:active { transform: translateY(1px); box-shadow: 0 1px 0 rgba(0,0,0,.4); }
+.shoot:disabled { opacity: .5; cursor: default; transform: none; box-shadow: none; }
 input[type="file"] { display: none; }
 
-.note { color: var(--muted); font-size: 12.5px; margin-top: 10px; line-height: 1.5; }
+.note { color: var(--faint); font-size: 12px; margin-top: 14px; line-height: 1.6; }
+
+/* Errors read as a marginal note with a rule, not as a boxed alert. */
 .err {
-  background: #3a1d24; border: 1px solid #6b2f3d; color: #f6d6dc;
-  padding: 12px 14px; border-radius: var(--radius); font-size: 14px; margin-top: 14px;
+  border-left: 2px solid var(--accent);
+  background: linear-gradient(90deg, rgba(200,66,95,.10), transparent 70%);
+  color: #f3cdd5; padding: 12px 14px; font-size: 13.5px; line-height: 1.5;
+  margin-top: 16px; border-radius: 0 var(--r-md) var(--r-md) 0;
 }
 
-.thumb { width: 100%; border-radius: var(--radius); margin-top: 16px; display: block; }
+.thumb { width: 100%; border-radius: var(--r-md); margin-top: 18px; display: block; }
 
+/* ---- top pick ------------------------------------------------------------
+ * Full-bleed band. The payoff of the whole app should touch both edges of the
+ * phone; an inset rounded card makes it look like one more list item. */
 .pick {
-  margin-top: 20px; padding: 16px; border-radius: var(--radius);
-  background: var(--surface-2); border: 1px solid var(--accent);
+  margin: 26px calc(var(--pad) * -1) 0;
+  padding: 18px var(--pad) 20px;
+  background: var(--surface);
+  border-top: 2px solid var(--gold);
+  border-bottom: 1px solid var(--line);
 }
-.pick .lbl { color: var(--accent); font-size: 11px; letter-spacing: .12em; font-weight: 700; }
-.pick .name { font-size: 17px; margin: 6px 0 4px; line-height: 1.35; }
-.pick .why { color: var(--muted); font-size: 13.5px; }
+.pick .lbl {
+  color: var(--gold); font-size: 10px; letter-spacing: .22em; font-weight: 700;
+  text-transform: uppercase;
+}
+.pick .name {
+  font-family: var(--serif); font-weight: 400;
+  font-size: 27px; line-height: 1.15; letter-spacing: -.005em;
+  margin: 10px 0 8px;
+}
+.pick .why { color: var(--muted); font-size: 13.5px; line-height: 1.55; }
+.pick .why2 { color: var(--faint); font-size: 12.5px; margin-top: 6px; }
 
+/* ---- ranked list --------------------------------------------------------- */
 .row {
-  display: flex; gap: 12px; align-items: baseline;
-  padding: 12px 0; border-bottom: 1px solid var(--line);
+  display: flex; gap: 14px; align-items: baseline;
+  padding: 13px 0; border-bottom: 1px solid var(--line-soft);
 }
-.rank { color: var(--muted); font-size: 12px; min-width: 20px; font-variant-numeric: tabular-nums; }
-.name { flex: 1; font-size: 14.5px; line-height: 1.4; }
-.price { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
-.why2 { color: var(--muted); font-size: 12.5px; margin-top: 3px; }
+.rank {
+  font-family: var(--serif); font-size: 17px; color: var(--faint);
+  min-width: 22px; font-variant-numeric: tabular-nums; line-height: 1;
+}
+.name {
+  flex: 1; font-family: var(--serif); font-size: 18px; line-height: 1.25;
+  letter-spacing: -.003em;
+}
+.price {
+  color: var(--faint); font-size: 13px; font-variant-numeric: tabular-nums;
+  letter-spacing: .01em;
+}
+/* Supporting prose drops back to the sans, so the serif always means "a name". */
+.why2 {
+  font-family: var(--sans); color: var(--muted); font-size: 12.5px;
+  margin-top: 4px; line-height: 1.45;
+}
 
-h2 { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin: 26px 0 4px; font-weight: 700; }
-.held { color: var(--muted); font-size: 13px; line-height: 1.6; }
+.held { color: var(--muted); font-size: 13px; line-height: 1.7; margin-top: 4px; }
 .auth-shell { min-height: 100vh; background: var(--bg); }
 
 /* ---- bottom nav ---------------------------------------------------------- */
@@ -76,46 +158,64 @@ h2 { font-size: 12px; letter-spacing: .12em; color: var(--muted); margin: 26px 0
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
   display: flex; justify-content: space-around; align-items: flex-start;
   padding: 10px 0 calc(22px + env(safe-area-inset-bottom, 0px));
-  background: color-mix(in oklab, var(--bg) 84%, transparent);
+  background: color-mix(in oklab, var(--bg) 82%, transparent);
   backdrop-filter: blur(20px) saturate(140%);
   -webkit-backdrop-filter: blur(20px) saturate(140%);
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--line-soft);
 }
 .navbtn {
   appearance: none; background: transparent; border: 0; cursor: pointer;
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
-  color: var(--muted); padding: 4px 16px; font-size: 11px; letter-spacing: .04em;
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  color: var(--faint); padding: 4px 16px;
+  font-size: 10px; letter-spacing: .14em; text-transform: uppercase; font-weight: 600;
+  transition: color .15s ease;
 }
 .navbtn.active { color: var(--text); }
-.wrap { padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px)); }
+/* The active tab is marked, not only lit: colour alone is a weak signal. */
+.navbtn.active::after {
+  content: ''; width: 3px; height: 3px; border-radius: 50%;
+  background: var(--accent); margin-top: 1px;
+}
 
 /* ---- lookup -------------------------------------------------------------- */
 .lookup { display: flex; gap: 8px; }
 .lookup input {
   flex: 1; min-width: 0; padding: 13px 14px; font-size: 16px; /* 16px: iOS won't zoom */
-  border-radius: var(--radius); border: 1px solid var(--line);
-  background: var(--surface); color: var(--text);
+  font-family: var(--sans);
+  border-radius: var(--r-sm); border: 1px solid var(--line);
+  background: rgba(255, 255, 255, .03); color: var(--text);
+  transition: border-color .15s ease;
 }
-.lookup input::placeholder { color: var(--muted); }
+.lookup input:focus { outline: none; border-color: var(--accent-lo); }
+.lookup input::placeholder { color: var(--faint); }
 .lookup button {
-  padding: 13px 18px; border: 0; border-radius: var(--radius); cursor: pointer;
-  background: var(--accent); color: #fff; font-size: 15px; font-weight: 600;
+  padding: 13px 18px; border: 0; border-radius: var(--r-sm); cursor: pointer;
+  background: var(--accent); color: #fff;
+  font-size: 14px; font-weight: 600; letter-spacing: .02em; white-space: nowrap;
 }
-.lookup button:disabled { opacity: .5; }
+.lookup button:disabled { opacity: .45; }
 
-/* ---- stars --------------------------------------------------------------- */
-.stars { display: flex; gap: 2px; margin-top: 6px; }
+/* ---- stars ---------------------------------------------------------------
+ * SVG, not the star/hollow-star character pair: those render at different
+ * weights per platform and the hollow glyph reads visibly lighter. */
+.stars { display: flex; gap: 3px; margin-top: 8px; }
 .star {
   appearance: none; background: none; border: 0; cursor: pointer;
-  color: var(--muted); line-height: 1; padding: 2px 3px;
+  color: var(--gold-lo); line-height: 0; padding: 2px;
+  transition: color .12s ease, transform .12s ease;
 }
-.star.on { color: var(--accent); }
+.star.on { color: var(--gold); }
+.star:active { transform: scale(.88); }
 
-.rateline { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
-.ratelbl { color: var(--muted); font-size: 12px; letter-spacing: .1em; font-weight: 700; }
+.rateline { display: flex; align-items: center; gap: 14px; margin-top: 16px; }
+.ratelbl {
+  color: var(--faint); font-size: 10px; letter-spacing: .2em; font-weight: 700;
+  text-transform: uppercase;
+}
 
 .row.logged { align-items: flex-start; }
 .kill {
   appearance: none; background: none; border: 0; cursor: pointer;
-  color: var(--muted); font-size: 22px; line-height: 1; padding: 0 2px;
+  color: var(--faint); font-size: 20px; line-height: 1; padding: 2px 4px;
 }
+.kill:active { color: var(--accent); }

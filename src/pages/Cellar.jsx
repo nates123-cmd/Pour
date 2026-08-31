@@ -101,6 +101,7 @@ export default function Cellar({ category }) {
 
       {found && (
         <div className="pick">
+          <div className="lbl">Found</div>
           <div className="name selectable">{found.name}</div>
           <div className="why">
             {[found.producer, found.style, found.origin,
@@ -119,6 +120,7 @@ export default function Cellar({ category }) {
 
       {notFound && (
         <div className="pick">
+          <div className="lbl">Logging by name</div>
           <div className="name selectable">{query.trim()}</div>
           <div className="why">Not recognised. You can still log it by name.</div>
           <div className="rateline">
@@ -128,7 +130,7 @@ export default function Cellar({ category }) {
         </div>
       )}
 
-      <h2>{loading ? 'LOADING' : `LOGGED (${rows.length})`}</h2>
+      <h2>{loading ? 'Loading' : `Logged (${rows.length})`}</h2>
       {!loading && rows.length === 0 && (
         <p className="held">Nothing yet. Look one up above.</p>
       )}

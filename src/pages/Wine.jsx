@@ -86,12 +86,14 @@ function Results({ result, skipped }) {
   return (
     <>
       <div className="pick">
-        <div className="lbl">TOP PICK</div>
+        {/* Sentence case in the markup, uppercased in CSS: a screen reader
+            spells an all-caps string out letter by letter. */}
+        <div className="lbl">Top pick</div>
         <div className="name selectable">{top.entry.raw}</div>
         <div className="why">{top.axes.basis}</div>
       </div>
 
-      <h2>RANKED</h2>
+      <h2>Ranked</h2>
       {ranked.map((r, i) => (
         <div className="row" key={r.entry.raw}>
           <div className="rank">{i + 1}</div>
@@ -105,7 +107,7 @@ function Results({ result, skipped }) {
 
       {unsure.length > 0 && (
         <>
-          <h2>NOT RANKED, TOO LITTLE TO GO ON</h2>
+          <h2>Too little to go on</h2>
           <div className="held selectable">{unsure.map((r) => r.entry.raw).join(' · ')}</div>
         </>
       )}
