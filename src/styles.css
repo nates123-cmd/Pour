@@ -1,52 +1,46 @@
 /* Design tokens live on :root, per suite convention.
+ * The direction and its rules are written down in DESIGN.md — read that before
+ * changing anything here.
  *
- * The look is a restaurant wine list, not a dashboard: one editorial serif
- * carries every proper noun, the UI sans is reserved for labels and controls,
- * and grouping is done with space and hairlines rather than bordered cards.
- * Gold is the rating colour, claret is the action colour — they never swap. */
+ * Reference: Aldo Sohm's "Wine Simple". Warm cream paper, near-black ink, flat
+ * circles of wine colour, square corners, hairline rules, tiny letterspaced
+ * caps. Approachable, not reverent. No shadows, no gradients, no rounding. */
 :root {
-  /* ground ------------------------------------------------------------- */
-  --bg: #170f11;
-  --bg-lift: #211519;      /* top-of-page glow, keeps the flat field alive */
-  --surface: #221619;
-  --line: #35242b;         /* hairlines you should notice */
-  --line-soft: #271a20;    /* hairlines you should not */
+  --paper: #faf5ea;
+  --paper-2: #f2ead7;
+  --ink: #191512;
+  --ink-60: #6b6157;
+  --ink-35: #a2988a;
+  --rule: rgba(25, 21, 18, .2);
+  --rule-strong: rgba(25, 21, 18, .42);
 
-  /* Text in three tiers, not two. Everything secondary used to be --muted,
-   * which flattened prices and rank numbers into the prose beside them. */
-  --text: #f4ecec;
-  --muted: #b09ea2;        /* supporting prose */
-  --faint: #7c6a6f;        /* rank numbers, prices, counts */
+  /* The palate scale, ordered along Sip's single axis: violet is fresh,
+   * savoury and high-toned; amber is ripe, oaky and heavy. --s2 doubles as the
+   * action colour and is used for nothing else. */
+  --s1: #7b3f9d;
+  --s2: #6e2a46;
+  --s3: #c4506a;
+  --s4: #a8443a;
+  --s5: #d2724a;
+  --s6: #e0a838;
 
-  /* Action vs rating: two roles, two colours, never interchanged. */
-  --accent: #c8425f;
-  --accent-lo: #8e2b41;
-  --gold: #d9a441;
-  --gold-lo: #6d5227;
+  --pad: 20px;
 
-  --r-sm: 8px;
-  --r-md: 4px;
-  --pad: 18px;
+  --display: 'Jost', 'Futura', 'Avenir Next', sans-serif;
+  --text: 'Hanken Grotesk', ui-sans-serif, -apple-system, system-ui, sans-serif;
+  --note: 'Instrument Serif', 'Hoefler Text', Georgia, serif;
 
-  /* One display face, one UI face. The serif is the app's identity; the
-   * system sans is a deliberate second voice for chrome, not a default. */
-  --serif: 'Instrument Serif', 'Hoefler Text', 'Iowan Old Style', Georgia, serif;
-  --sans: ui-sans-serif, -apple-system, system-ui, 'Segoe UI', sans-serif;
-
-  font-family: var(--sans);
-  color-scheme: dark;
+  font-family: var(--text);
+  color-scheme: light;
 }
 
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
-  color: var(--text);
-  background: var(--bg);
-  /* Cheap depth: the field is no longer one flat swatch. */
-  background-image: radial-gradient(120% 60% at 50% 0%, var(--bg-lift) 0%, transparent 70%);
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
   /* Chrome is not selectable; user content re-enables it below. */
   -webkit-user-select: none;
   user-select: none;
@@ -57,165 +51,259 @@ input, textarea, .selectable { -webkit-user-select: text; user-select: text; }
 
 .wrap {
   max-width: 620px; margin: 0 auto;
-  padding: 28px var(--pad) calc(104px + env(safe-area-inset-bottom, 0px));
+  padding: 26px var(--pad) calc(104px + env(safe-area-inset-bottom, 0px));
 }
 
-/* ---- type scale ----------------------------------------------------------
- * 10 to 34px is better than a 3x range. The old scale ran 12 to 20 and read
- * as a single size with slight variations. */
+/* ---- masthead ------------------------------------------------------------ */
 h1 {
-  font-family: var(--serif); font-weight: 400;
-  font-size: 34px; line-height: 1.05; letter-spacing: -.01em;
-  margin: 0 0 6px;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 58px;
+  line-height: .92;
+  letter-spacing: -.032em;
+  margin: 0 0 12px;
 }
-.sub { color: var(--muted); font-size: 13.5px; line-height: 1.5; margin: 0 0 26px; max-width: 34ch; }
+.sub {
+  color: var(--ink-60);
+  font-size: 15px; line-height: 1.45;
+  margin: 0 0 24px; max-width: 34ch;
+}
 
-/* Section heads: a caps label plus a rule running out to the margin, so they
- * divide the page instead of just sitting on it. */
+/* ---- the scale, as a legend ----------------------------------------------
+ * The cover's grape cluster, laid out as the axis it actually is. It teaches
+ * the row colours and it is the book's signature mark, so it earns its place
+ * twice. */
+/* Capped so the end labels stay aligned with the circles on a wide screen. */
+.scale { margin: 0 0 24px; max-width: 430px; }
+.scale .circles { display: flex; gap: 6px; }
+/* Overrides .dot's fixed size — these are the same swatches, sized to fill. */
+.scale .circles .dot {
+  width: auto; height: auto; flex: 1 1 0; aspect-ratio: 1; max-width: 64px;
+}
+.scale .ends {
+  display: flex; justify-content: space-between; gap: 12px;
+  margin-top: 9px;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase; color: var(--ink-35);
+}
+
+/* ---- labels and section heads -------------------------------------------
+ * Every label in the book is tiny, capitalised and widely letterspaced, with a
+ * hairline doing the dividing. One device, used everywhere. */
 h2 {
-  display: flex; align-items: center; gap: 12px;
-  font-size: 10.5px; letter-spacing: .18em; font-weight: 700;
-  color: var(--faint); margin: 34px 0 6px; text-transform: uppercase;
+  font-family: var(--text);
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .2em; text-transform: uppercase;
+  color: var(--ink-35);
+  margin: 38px 0 0;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--rule-strong);
 }
-h2::after { content: ''; flex: 1; height: 1px; background: var(--line-soft); }
 
-/* ---- primary action ------------------------------------------------------ */
+/* ---- primary action ------------------------------------------------------
+ * A flat block of colour with square corners. No gradient, no shadow, no
+ * rounding — those three are what made the old button look like every button. */
 .shoot {
-  display: block; width: 100%; padding: 19px; cursor: pointer;
-  font-family: var(--sans); font-size: 15px; font-weight: 600; letter-spacing: .02em;
-  color: #fff; border-radius: var(--r-sm);
-  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-lo) 100%);
-  border: 0; border-top: 1px solid #e0748a;   /* a lit top edge, so it has a form */
-  box-shadow: 0 1px 0 rgba(0,0,0,.4), 0 10px 24px -12px var(--accent-lo);
+  display: block; width: 100%; padding: 18px; cursor: pointer;
+  font-family: var(--text);
+  font-size: 12px; font-weight: 700;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--paper);
+  background: var(--s2);
+  border: 0; border-radius: 0;
 }
-.shoot:active { transform: translateY(1px); box-shadow: 0 1px 0 rgba(0,0,0,.4); }
-.shoot:disabled { opacity: .5; cursor: default; transform: none; box-shadow: none; }
+.shoot:disabled { background: var(--ink-35); cursor: default; }
 input[type="file"] { display: none; }
 
-.note { color: var(--faint); font-size: 12px; margin-top: 14px; line-height: 1.6; }
+/* The caveat note, marked with the book's asterisk rather than a bullet. */
+.note {
+  display: flex; gap: 9px;
+  color: var(--ink-60); font-size: 12.5px; line-height: 1.55;
+  margin-top: 22px; padding-top: 14px;
+  border-top: 1px solid var(--rule);
+}
+.note::before { content: '✳'; color: var(--s5); flex: none; line-height: 1.4; }
 
-/* Errors read as a marginal note with a rule, not as a boxed alert. */
+/* Errors are a flat block, the same device as the book's callout boxes. */
 .err {
-  border-left: 2px solid var(--accent);
-  background: linear-gradient(90deg, rgba(200,66,95,.10), transparent 70%);
-  color: #f3cdd5; padding: 12px 14px; font-size: 13.5px; line-height: 1.5;
-  margin-top: 16px; border-radius: 0 var(--r-md) var(--r-md) 0;
+  background: var(--s4); color: var(--paper);
+  padding: 14px 16px; font-size: 13.5px; line-height: 1.5;
+  margin-top: 18px;
 }
 
-.thumb { width: 100%; border-radius: var(--r-md); margin-top: 18px; display: block; }
+.thumb { width: 100%; margin-top: 18px; display: block; }
 
-/* ---- top pick ------------------------------------------------------------
- * Full-bleed band. The payoff of the whole app should touch both edges of the
- * phone; an inset rounded card makes it look like one more list item. */
+/* ---- the palate circle ---------------------------------------------------
+ * Coloured by `rel`, the wine's distance from that list's own average. It is
+ * the only fit number the model is honest enough to surface, and this is the
+ * cover's grape cluster doing real work rather than decoration. */
+.dot {
+  flex: none; border-radius: 50%;
+  width: 13px; height: 13px;
+  background: var(--s4);
+}
+.dot.s1 { background: var(--s1); }
+.dot.s2 { background: var(--s2); }
+.dot.s3 { background: var(--s3); }
+.dot.s4 { background: var(--s4); }
+.dot.s5 { background: var(--s5); }
+.dot.s6 { background: var(--s6); }
+
+/* ---- top pick ------------------------------------------------------------ */
 .pick {
-  margin: 26px calc(var(--pad) * -1) 0;
-  padding: 18px var(--pad) 20px;
-  background: var(--surface);
-  border-top: 2px solid var(--gold);
-  border-bottom: 1px solid var(--line);
+  margin: 22px calc(var(--pad) * -1) 0;
+  padding: 20px var(--pad) 22px;
+  background: var(--paper-2);
 }
 .pick .lbl {
-  color: var(--gold); font-size: 10px; letter-spacing: .22em; font-weight: 700;
-  text-transform: uppercase;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .2em; text-transform: uppercase;
+  color: var(--ink);
 }
+.pick .lbl::before { content: '→'; color: var(--s2); letter-spacing: 0; }
+/* The circle sits beside the name, the way the book sets an illustration next
+ * to a varietal. On its own above the text it read as a loading spinner. */
+.pick .body {
+  display: flex; gap: clamp(12px, 3.5vw, 16px);
+  align-items: flex-start; margin-top: 16px;
+}
+.pick .bigdot {
+  flex: none; border-radius: 50%; background: var(--s2);
+  width: clamp(54px, 15vw, 72px); height: clamp(54px, 15vw, 72px);
+}
+.pick .body > div:last-child { min-width: 0; }
 .pick .name {
-  font-family: var(--serif); font-weight: 400;
-  font-size: 27px; line-height: 1.15; letter-spacing: -.005em;
-  margin: 10px 0 8px;
+  font-family: var(--display);
+  font-weight: 500; font-size: clamp(21px, 5.8vw, 27px); line-height: 1.1;
+  letter-spacing: -.012em;
+  margin: 0 0 9px;
 }
-.pick .why { color: var(--muted); font-size: 13.5px; line-height: 1.55; }
-.pick .why2 { color: var(--faint); font-size: 12.5px; margin-top: 6px; }
+/* The characterizing phrase, in italic serif — the book's "Full-Bodied
+ * Finesse" line. This face appears nowhere else in the app. */
+.pick .why {
+  font-family: var(--note); font-style: italic;
+  font-size: 17px; line-height: 1.35; color: var(--ink-60);
+}
+.pick .why2 {
+  font-size: 12.5px; line-height: 1.45; color: var(--ink-60);
+  margin-top: 10px;
+}
 
 /* ---- ranked list --------------------------------------------------------- */
 .row {
-  display: flex; gap: 14px; align-items: baseline;
-  padding: 13px 0; border-bottom: 1px solid var(--line-soft);
+  display: flex; gap: 12px; align-items: baseline;
+  padding: 14px 0; border-bottom: 1px solid var(--rule);
 }
 .rank {
-  font-family: var(--serif); font-size: 17px; color: var(--faint);
-  min-width: 22px; font-variant-numeric: tabular-nums; line-height: 1;
+  font-family: var(--display);
+  font-size: 16px; font-weight: 500; color: var(--ink-60);
+  min-width: 18px; font-variant-numeric: tabular-nums;
 }
-.name {
-  flex: 1; font-family: var(--serif); font-size: 18px; line-height: 1.25;
-  letter-spacing: -.003em;
-}
+.row .dot { align-self: center; }
+.name { flex: 1; font-size: 15.5px; font-weight: 500; line-height: 1.3; }
 .price {
-  color: var(--faint); font-size: 13px; font-variant-numeric: tabular-nums;
-  letter-spacing: .01em;
+  font-size: 13.5px; font-weight: 600; color: var(--ink-60);
+  font-variant-numeric: tabular-nums;
 }
-/* Supporting prose drops back to the sans, so the serif always means "a name". */
 .why2 {
-  font-family: var(--sans); color: var(--muted); font-size: 12.5px;
-  margin-top: 4px; line-height: 1.45;
+  font-family: var(--note); font-style: italic;
+  font-size: 14px; line-height: 1.35; color: var(--ink-60);
+  margin-top: 3px;
 }
 
-.held { color: var(--muted); font-size: 13px; line-height: 1.7; margin-top: 4px; }
-.auth-shell { min-height: 100vh; background: var(--bg); }
+/* Metadata — producer, style, ABV. Stays in the text face: the italic serif is
+ * reserved for a characterizing phrase, and a middot-joined data string is not
+ * one. */
+.meta {
+  font-size: 13px; line-height: 1.45; color: var(--ink-60);
+  margin-top: 5px;
+}
+
+/* Enumerable but unranked: the book's centred, hairline-separated stack. */
+.held { border-top: 1px solid var(--rule); }
+.held span {
+  display: block; text-align: center;
+  font-size: 14px; color: var(--ink-60);
+  padding: 11px 0; border-bottom: 1px solid var(--rule);
+}
+
+/* The one rounded thing in the app, and it is an outline, never a fill. */
+.badge {
+  display: inline-block; margin-top: 16px;
+  padding: 6px 13px 5px;
+  border: 1px solid var(--rule-strong); border-radius: 999px;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: .13em; text-transform: uppercase;
+  color: var(--ink-60);
+}
+
+.auth-shell { min-height: 100vh; background: var(--paper); }
 
 /* ---- bottom nav ---------------------------------------------------------- */
 /* No stacking context on the page wrapper, so nothing can be buried under it. */
 .bottomnav {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
   display: flex; justify-content: space-around; align-items: flex-start;
-  padding: 10px 0 calc(22px + env(safe-area-inset-bottom, 0px));
-  background: color-mix(in oklab, var(--bg) 82%, transparent);
-  backdrop-filter: blur(20px) saturate(140%);
-  -webkit-backdrop-filter: blur(20px) saturate(140%);
-  border-top: 1px solid var(--line-soft);
+  padding: 12px 0 calc(22px + env(safe-area-inset-bottom, 0px));
+  background: var(--paper);
+  border-top: 1px solid var(--rule-strong);
 }
 .navbtn {
   appearance: none; background: transparent; border: 0; cursor: pointer;
-  display: flex; flex-direction: column; align-items: center; gap: 5px;
-  color: var(--faint); padding: 4px 16px;
-  font-size: 10px; letter-spacing: .14em; text-transform: uppercase; font-weight: 600;
-  transition: color .15s ease;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  color: var(--ink-35); padding: 2px 16px;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase;
 }
-.navbtn.active { color: var(--text); }
-/* The active tab is marked, not only lit: colour alone is a weak signal. */
+.navbtn.active { color: var(--ink); }
+/* The active tab is marked with a filled circle, the app's own motif. */
 .navbtn.active::after {
-  content: ''; width: 3px; height: 3px; border-radius: 50%;
-  background: var(--accent); margin-top: 1px;
+  content: ''; width: 4px; height: 4px; border-radius: 50%;
+  background: var(--s2);
 }
 
 /* ---- lookup -------------------------------------------------------------- */
-.lookup { display: flex; gap: 8px; }
+.lookup { display: flex; gap: 0; border: 1px solid var(--rule-strong); }
 .lookup input {
-  flex: 1; min-width: 0; padding: 13px 14px; font-size: 16px; /* 16px: iOS won't zoom */
-  font-family: var(--sans);
-  border-radius: var(--r-sm); border: 1px solid var(--line);
-  background: rgba(255, 255, 255, .03); color: var(--text);
-  transition: border-color .15s ease;
+  flex: 1; min-width: 0; padding: 14px; font-size: 16px; /* 16px: iOS won't zoom */
+  font-family: var(--text);
+  border: 0; border-radius: 0; background: transparent; color: var(--ink);
 }
-.lookup input:focus { outline: none; border-color: var(--accent-lo); }
-.lookup input::placeholder { color: var(--faint); }
+.lookup input:focus { outline: none; }
+.lookup input::placeholder { color: var(--ink-35); }
 .lookup button {
-  padding: 13px 18px; border: 0; border-radius: var(--r-sm); cursor: pointer;
-  background: var(--accent); color: #fff;
-  font-size: 14px; font-weight: 600; letter-spacing: .02em; white-space: nowrap;
+  padding: 14px 16px; border: 0; border-radius: 0; cursor: pointer;
+  background: var(--s2); color: var(--paper);
+  font-family: var(--text);
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase; white-space: nowrap;
 }
-.lookup button:disabled { opacity: .45; }
+.lookup button:disabled { background: var(--ink-35); }
 
-/* ---- stars ---------------------------------------------------------------
- * SVG, not the star/hollow-star character pair: those render at different
- * weights per platform and the hollow glyph reads visibly lighter. */
-.stars { display: flex; gap: 3px; margin-top: 8px; }
+/* ---- rating ---------------------------------------------------------------
+ * Circles, not stars. The book scores everything with rows of filled circles,
+ * and the star characters it replaces rendered at different weights per
+ * platform anyway. */
+.stars { display: flex; gap: 7px; margin-top: 10px; }
 .star {
   appearance: none; background: none; border: 0; cursor: pointer;
-  color: var(--gold-lo); line-height: 0; padding: 2px;
-  transition: color .12s ease, transform .12s ease;
+  padding: 3px; line-height: 0;
 }
-.star.on { color: var(--gold); }
-.star:active { transform: scale(.88); }
+.star i {
+  display: block; border-radius: 50%;
+  border: 1px solid var(--rule-strong); background: transparent;
+}
+.star.on i { background: var(--s2); border-color: var(--s2); }
 
-.rateline { display: flex; align-items: center; gap: 14px; margin-top: 16px; }
+.rateline { display: flex; align-items: center; gap: 14px; margin-top: 18px; }
 .ratelbl {
-  color: var(--faint); font-size: 10px; letter-spacing: .2em; font-weight: 700;
-  text-transform: uppercase;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .2em; text-transform: uppercase; color: var(--ink-35);
 }
 
 .row.logged { align-items: flex-start; }
 .kill {
   appearance: none; background: none; border: 0; cursor: pointer;
-  color: var(--faint); font-size: 20px; line-height: 1; padding: 2px 4px;
+  color: var(--ink-35); font-size: 19px; line-height: 1; padding: 0 2px;
 }
-.kill:active { color: var(--accent); }

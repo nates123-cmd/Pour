@@ -103,13 +103,15 @@ export default function Cellar({ category }) {
         <div className="pick">
           <div className="lbl">Found</div>
           <div className="name selectable">{found.name}</div>
-          <div className="why">
+          {/* Metadata, not a characterizing phrase, so it stays in the text face.
+              The italic serif is reserved for tasting notes (see DESIGN.md). */}
+          <div className="meta">
             {[found.producer, found.style, found.origin,
               found.abv != null ? `${found.abv}%` : null]
               .filter(Boolean).join(' · ')}
           </div>
           {found.confidence < 0.4 && (
-            <div className="why2">Not sure this is the right one. Check the name.</div>
+            <div className="meta">Not sure this is the right one. Check the name.</div>
           )}
           <div className="rateline">
             <span className="ratelbl">Rate it</span>
@@ -122,7 +124,7 @@ export default function Cellar({ category }) {
         <div className="pick">
           <div className="lbl">Logging by name</div>
           <div className="name selectable">{query.trim()}</div>
-          <div className="why">Not recognised. You can still log it by name.</div>
+          <div className="meta">Not recognised. You can still log it by name.</div>
           <div className="rateline">
             <span className="ratelbl">Rate it</span>
             <Stars value={0} onChange={(n) => save(n, null)} />
@@ -132,17 +134,17 @@ export default function Cellar({ category }) {
 
       <h2>{loading ? 'Loading' : `Logged (${rows.length})`}</h2>
       {!loading && rows.length === 0 && (
-        <p className="held">Nothing yet. Look one up above.</p>
+        <div className="held"><span>Nothing yet. Look one up above.</span></div>
       )}
       {rows.map((r) => (
         <div className="row logged" key={r.id}>
           <div className="name selectable">
             {r.name}
-            <div className="why2">
+            <div className="meta">
               {[r.producer, r.style, r.abv != null ? `${r.abv}%` : null]
                 .filter(Boolean).join(' · ') || '—'}
             </div>
-            <Stars value={r.rating} size={19} onChange={(n) => reRate(r.id, n)} />
+            <Stars value={r.rating} size={13} onChange={(n) => reRate(r.id, n)} />
           </div>
           <button className="kill" onClick={() => remove(r.id)} aria-label={`delete ${r.name}`}>
             ×
