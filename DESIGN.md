@@ -65,9 +65,17 @@ colour of the end of the scale you actually want. No colour outside this table
 enters the app.
 
 **The circles are not decoration.** Each ranked wine gets one, coloured by
-`rel` — its distance from that list's own average, which is the only fit number
-the model is honest enough to show. That is the book's grape-cluster motif doing
+`rel` — its distance from an average, which is the only fit number the model is
+honest enough to show. For a list that average is the list; for a single bottle
+it is your own 23 rated bottles. That is the book's grape-cluster motif doing
 actual work. Never colour a circle by anything else.
+
+**Watch the specificity when you size a circle.** `.pick .bigdot` and `.dot.s1`
+have equal specificity, so a `background` on the sizing rule wins on source
+order and silently paints every big circle `--s2` whatever `step()` decided.
+That shipped once: the largest circle on the screen was pure decoration and the
+scale legend directly above it was teaching a colour the circle never used. Size
+in `.bigdot`, colour in `.dot.sN`, never both.
 
 ## Type
 
@@ -93,6 +101,14 @@ Port these from the book, and prefer them over inventing new ones.
 - **`→` arrow prefix** for a recommendation or a pointer.
 - **Outline pill badge**, hairline stroke, no fill — the one rounded thing.
 - **Flat colour circles** at any size, never with a stroke or a shadow.
+- **Caps-label mode strip** over a hairline, active mode underlined in `--s2`.
+  This is the label device doing navigation. It is not a segmented control: no
+  pill group, no fill, no rounding, no icons.
+
+Anything enumerable gets the hairline-separated stack, including the three style
+axes on a single bottle — label left, figure right in the display face. Three
+numbers side by side is a stat row, and a stat row is a dashboard, which is the
+look this app already climbed out of once.
 
 ## Looking at it
 
@@ -113,4 +129,13 @@ These come from the model, not from taste, and the design must not fight them.
   rating and is not one. Show `rel`, as a circle and as a position in the order.
 - **The ranked list is an order, not a scoreboard.** Nothing on screen may
   suggest a wine scored 4.2 out of 5.
+- **A single bottle gets a rank, not a verdict.** "Ahead of 21 of the 23 you
+  have rated" is a position among real bottles. "4.3 stars" is not available and
+  never will be from this model.
+- **Never print a cellar bottle's real rating beside a new one.** Under "closest
+  in your cellar" the anchors are names only. Their true scores are in the data
+  and putting one next to a new bottle reads as a prediction for the new bottle,
+  which is the banned thing wearing a disguise.
+- **The style axes are style, never quality.** A 9 for tannin is not a good
+  score, and the heading says "1 to 10" rather than "out of 10" for that reason.
 - Beer and Spirits rank nothing. Do not give them ranking furniture.

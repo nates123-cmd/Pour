@@ -100,6 +100,23 @@ h2 {
   border-bottom: 1px solid var(--rule-strong);
 }
 
+/* ---- mode strip ----------------------------------------------------------
+ * Three ways to ask the same question. Tiny letterspaced caps over a hairline,
+ * which is the book's label device rather than a new one — no pill group, no
+ * rounded segmented control, no icons. The active mode takes the action colour
+ * as its rule, the same way the active tab takes it as a dot. */
+.modes { display: flex; border-bottom: 1px solid var(--rule); margin-bottom: 18px; }
+.mode {
+  flex: 1; appearance: none; background: none; cursor: pointer;
+  border: 0; border-bottom: 2px solid transparent; border-radius: 0;
+  margin-bottom: -1px; padding: 0 4px 11px;
+  font-family: var(--text);
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: var(--ink-35);
+}
+.mode.active { color: var(--ink); border-bottom-color: var(--s2); }
+
 /* ---- primary action ------------------------------------------------------
  * A flat block of colour with square corners. No gradient, no shadow, no
  * rounding — those three are what made the old button look like every button. */
@@ -168,8 +185,13 @@ input[type="file"] { display: none; }
   display: flex; gap: clamp(12px, 3.5vw, 16px);
   align-items: flex-start; margin-top: 16px;
 }
+/* Size only. It must NOT set a background: `.pick .bigdot` and `.dot.s1` have
+ * equal specificity, so a background here wins on source order and silently
+ * paints every big circle --s2 whatever `step()` decided — which turns the
+ * largest circle on the screen into decoration. The `.dot` base colour is the
+ * fallback when no scale class is passed. */
 .pick .bigdot {
-  flex: none; border-radius: 50%; background: var(--s2);
+  flex: none; border-radius: 50%;
   width: clamp(54px, 15vw, 72px); height: clamp(54px, 15vw, 72px);
 }
 .pick .body > div:last-child { min-width: 0; }
@@ -218,6 +240,24 @@ input[type="file"] { display: none; }
 .meta {
   font-size: 13px; line-height: 1.45; color: var(--ink-60);
   margin-top: 5px;
+}
+
+/* The three style axes behind a single bottle's placement. Enumerable, so it
+ * gets the book's hairline-separated stack rather than a row of big numbers —
+ * three stats side by side is a dashboard, which is the look this app climbed
+ * out of. Label left, figure right, in the display face. */
+.axes > div {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 11px 0; border-bottom: 1px solid var(--rule);
+}
+.axes span {
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .2em; text-transform: uppercase; color: var(--ink-60);
+}
+.axes b {
+  font-family: var(--display);
+  font-size: 22px; font-weight: 500;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Enumerable but unranked: the book's centred, hairline-separated stack. */
