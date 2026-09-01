@@ -26,7 +26,22 @@ export async function listTastings(category) {
   return data || []
 }
 
-export async function addTasting({ category, rating, lookup, query, notes }) {
+/**
+ * `source` records how the row was identified and whether anything corroborated
+ * it: 'lookup' (typed), 'label' (photographed), and a '+obdb' suffix when Open
+ * Brewery DB confirmed the brewery. That distinction is what would let a future
+ * beer fit weight corroborated rows above uncorroborated ones, which is the
+ * same argument that put the axes here in the first place.
+ *
+ * It is stored in the existing free-text column rather than a new one: this repo
+ * is not linked to the shared suite project, so the column's constraints could
+ * not be checked from here, and adding a column to a shared ledger unseen is the
+ * worse risk. See the retry in addTasting for how that uncertainty is handled.
+ */
+export const sourceTag = (viaLabel, confirmed) =>
+  `${viaLabel ? 'label' : 'lookup'}${confirmed ? '+obdb' : ''}`
+
+export async function addTasting({ category, rating, lookup, query, notes, source }) {
   const { data: sess } = await supabase.auth.getSession()
   const uid = sess?.session?.user?.id
   if (!uid) throw new Error('Signed out. Sign in and try again.')
@@ -44,12 +59,25 @@ export async function addTasting({ category, rating, lookup, query, notes }) {
     axes: lookup?.axes ?? null,
     axes_confidence: lookup?.confidence ?? null,
     lookup_basis: lookup?.basis ?? null,
-    source: 'lookup',
+    source: source || 'lookup',
   }
 
   const { data, error } = await supabase.from('sip_tastings').insert(row).select(COLS).single()
-  if (error) throw new Error(error.message)
-  return data
+  if (!error) return data
+
+  // 'lookup' is the only value proven to insert here. If a CHECK constraint on
+  // the column rejects the new tags, losing the tag is acceptable; losing the
+  // drink he just rated is not. Retry once with the known-good value.
+  if (row.source !== 'lookup') {
+    const retry = await supabase
+      .from('sip_tastings')
+      .insert({ ...row, source: 'lookup' })
+      .select(COLS)
+      .single()
+    if (!retry.error) return retry.data
+  }
+
+  throw new Error(error.message)
 }
 
 export async function rateTasting(id, rating) {

@@ -336,6 +336,21 @@ input[type="file"] { display: none; }
 }
 .star.on i { background: var(--s2); border-color: var(--s2); }
 
+/* Brewery corroborated against Open Brewery DB. The tiny caps label carries the
+ * claim and the matched brewery follows in the text face, so what actually
+ * matched is on screen rather than a bare tick. No icon: a checkmark beside a
+ * text label is exactly the banned pattern, and the label says it already. */
+.conf {
+  margin-top: 12px; padding-top: 11px;
+  border-top: 1px solid var(--rule);
+  font-size: 13px; line-height: 1.45; color: var(--ink-60);
+}
+.conf span {
+  display: block; margin-bottom: 3px;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .2em; text-transform: uppercase; color: var(--ink);
+}
+
 .rateline { display: flex; align-items: center; gap: 14px; margin-top: 18px; }
 .ratelbl {
   font-size: 11px; font-weight: 700;

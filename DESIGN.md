@@ -138,4 +138,11 @@ These come from the model, not from taste, and the design must not fight them.
   which is the banned thing wearing a disguise.
 - **The style axes are style, never quality.** A 9 for tannin is not a good
   score, and the heading says "1 to 10" rather than "out of 10" for that reason.
+- **Show both outcomes of the brewery check.** Printing nothing when a brewery
+  is unconfirmed makes "checked and real" look identical to "never looked",
+  which is the whole value of checking. And an unconfirmed brewery is reported
+  as unconfirmed, never as wrong: four of seventeen real breweries missed in
+  testing, so a miss is weak evidence and the copy must say so.
+- **Spirits get no corroboration furniture.** There is no open distillery
+  database, so the screen must not imply a check happened.
 - Beer and Spirits rank nothing. Do not give them ranking furniture.

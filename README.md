@@ -73,6 +73,36 @@ typical list's that the colour thresholds need no second set of numbers.
 the nearest bottle's real score beside a new bottle would read as a prediction for the new
 bottle. The names alone are enough — you remember what you thought of them.
 
+## Beer and spirits: the one available check
+
+Both tabs take a typed name or a photograph of the label. The photo is the better of the
+two when the can is in your hand, because the model is reading rather than recalling.
+
+Neither is checked by the model itself, and the half a model is likeliest to invent is the
+producer: a plausible brewery in a plausible town. So for beer the producer is corroborated
+against **Open Brewery DB** — free, no key, and it reflects the caller's origin in its CORS
+headers, so the PWA calls it directly with no proxy and no new credential.
+
+**The trap: a non-empty response is not a match.** It is a fuzzy search that almost always
+returns something. Ask it for "Brasserie Cantillon" and it returns Brasserie Chouffe,
+Brasserie du Moulin and Brasserie de Bastogne, with no Cantillon anywhere, because it
+matched on the word "Brasserie". Treating that as corroboration would hand a hallucinated
+brewery back wearing a confirmation, which is worse than never checking.
+
+So `lib/brewery.js` strips the generic words, searches on what is left, and scores the
+results itself. Measured over 17 real breweries and 8 invented ones, a 0.75 token-overlap
+threshold confirms 13 of the real and **none** of the invented. Rows with
+`brewery_type: "planning"` are excluded — those are filings, not breweries, and a made-up
+"Saltmarsh Brewing" matched one during testing.
+
+Four real breweries miss (Cloudwater, Birrificio Italiano, Fuller's, Schneider Weisse), and
+that is the right side to fail on. **A miss is reported as unconfirmed, never as wrong.**
+Both outcomes appear on screen, because showing nothing when unconfirmed makes "checked and
+real" indistinguishable from "never looked", which is the entire value of checking.
+
+Spirits get none of this. There is no open distillery database worth wiring, and the screen
+must not imply otherwise.
+
 ## Setup
 
     cp ../reading-app/.env .env      # VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY
@@ -101,7 +131,8 @@ it exercises the ranking end to end with no auth and no network:
 - **A bottle is identified twice over.** Which bottle it is, then what style it is. The
   placement is only as good as the weaker of the two, so the confidence floor is applied to
   `min(identification, scoring)` and below it nothing is placed at all.
-- **Wine only.** Beer and whiskey parse but have no palate model. Reported, not ranked.
+- **Wine only.** Beer and whiskey parse but have no palate model. Reported, not ranked. Beer
+  does get its brewery corroborated; see below.
 - **Low-confidence wines are held back**, not ranked. "House Red" cannot be scored and guessing
   would be worse than abstaining.
 - **No wine database.** Axis scores are inferred from the name. Vivino has no API, Wine-Searcher
@@ -117,6 +148,9 @@ it exercises the ranking end to end with no auth and no network:
     src/lib/menu.js        list photo -> entries     (gemini-2.5-flash)
     src/lib/bottle.js      label photo -> one wine   (gemini-2.5-flash)
                            typed name  -> one wine   (claude-haiku-4-5)
+    src/lib/lookup.js      beer/spirit name or label -> drink + style axes
+                                                     (claude-haiku-4-5 / gemini-2.5-flash)
+    src/lib/brewery.js     brewery -> corroborated?  (Open Brewery DB, no key)
     src/lib/score.js       wines -> style axes       (claude-sonnet-4-6, anchored)
     src/lib/palate.js      axes -> ranking, and one bottle -> a place in your cellar
                                                      (local, deterministic)
