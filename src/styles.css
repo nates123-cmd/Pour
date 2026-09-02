@@ -49,9 +49,12 @@ body {
 
 input, textarea, .selectable { -webkit-user-select: text; user-select: text; }
 
+/* The bottom clearance for the fixed nav is carried by .signout, which App
+ * renders under every page, not by .wrap -- otherwise the sign-out line sits
+ * below the padding and lands behind the nav. */
 .wrap {
   max-width: 620px; margin: 0 auto;
-  padding: 26px var(--pad) calc(104px + env(safe-area-inset-bottom, 0px));
+  padding: 26px var(--pad) 0;
 }
 
 /* ---- masthead ------------------------------------------------------------ */
@@ -278,7 +281,59 @@ input[type="file"] { display: none; }
   color: var(--ink-60);
 }
 
+/* ---- sign in -------------------------------------------------------------
+ * Not a centred bordered card. The gate is the app's own first page: cream
+ * ground, the circle cluster as the mark, the masthead face, one hairline field
+ * and one flat block of colour. The restyle to "Wine Simple" rewrote this file
+ * and left this screen with nothing but the shell, so it shipped as unstyled
+ * browser defaults -- keep these rules with the rest, not in their own file. */
 .auth-shell { min-height: 100vh; background: var(--paper); }
+.auth-col {
+  max-width: 430px; margin: 0 auto;
+  padding: 13vh var(--pad) calc(40px + env(safe-area-inset-bottom, 0px));
+}
+/* The mark reads as a mark, not as the legend it is on the ranked screens, so
+ * the circles are smaller here and carry no end labels. */
+.auth-mark { margin-bottom: 26px; }
+.auth-mark .circles { gap: 5px; }
+.auth-mark .circles .dot { max-width: 42px; }
+
+.auth-label {
+  display: block; margin-bottom: 8px;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: .2em; text-transform: uppercase;
+  color: var(--ink-35);
+}
+/* The field borrows .lookup's hairline box; there is no button inside it here,
+ * so the action sits under it at full width. */
+.auth-go { margin-top: 14px; }
+
+/* The way back out of the code step. A rule under text, the book's only link
+ * device -- not a second button competing with the action. */
+.auth-alt {
+  display: block; margin: 20px auto 0;
+  appearance: none; background: none; border: 0; cursor: pointer;
+  padding: 0 1px 3px;
+  font-family: var(--text);
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: var(--ink-35);
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+/* Sign out is deliberately quiet and at the very bottom of the page: it is the
+ * rarest action in the app and the most annoying one to hit by accident. */
+.signout {
+  display: block;
+  margin: 40px auto calc(104px + env(safe-area-inset-bottom, 0px));
+  appearance: none; background: none; border: 0; cursor: pointer;
+  padding: 0 1px 3px;
+  font-family: var(--text);
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: var(--ink-35);
+  border-bottom: 1px solid var(--rule);
+}
 
 /* ---- bottom nav ---------------------------------------------------------- */
 /* No stacking context on the page wrapper, so nothing can be buried under it. */
