@@ -3,6 +3,9 @@ import { readMenu } from '../lib/menu'
 import { readBottleLabel, searchWine } from '../lib/bottle'
 import { scoreWines } from '../lib/score'
 import { rank, placeInCellar, priceOf, CONFIDENCE_FLOOR, MODEL_VERSION } from '../lib/palate'
+import { useDrinks } from '../lib/useDrinks'
+import { DrinkList } from '../components/DrinkList'
+import { Stars } from '../components/Stars'
 
 /* Three ways in, one scorer behind all of them. A list gets ranked against
  * itself; a single bottle has no list, so it gets placed against the 23 bottles
@@ -60,6 +63,26 @@ function standing({ ahead, of }) {
   return `Ahead of ${ahead} of the ${of} you have rated`
 }
 
+/**
+ * A scanned or searched wine, flattened into a sip_tastings row.
+ *
+ * `raw` is the name deliberately: it is the line as printed on the list, which
+ * is what he will recognise later. The axes ride along because they are what
+ * makes this list refittable into a better palate model than the 23 bottles
+ * scraped off wine.com -- a name and a rating alone would not be.
+ */
+function wineRow(e, axes) {
+  return {
+    name: e.raw,
+    producer: e.producer ?? null,
+    style: e.varietal ?? null,
+    origin: [e.appellation, e.region, e.country].filter(Boolean).join(', ') || null,
+    axes,
+    confidence: axes?.confidence ?? null,
+    basis: axes?.basis ?? null,
+  }
+}
+
 /* The cover's grape cluster, laid out as the axis it actually is: it teaches
  * the row colours before the reader meets them. */
 function Scale() {
@@ -85,8 +108,16 @@ export default function Wine() {
   const [result, setResult] = useState(null)
   const [bottle, setBottle] = useState(null)
   const [skipped, setSkipped] = useState(null)
+  const list = useDrinks('wine')
 
   const busy = stage !== 'idle'
+
+  /* Saved names, so a bottle already on the list offers no second save. Keyed on
+   * the printed line, which is the only stable identifier a menu entry has. */
+  const saved = new Set(list.rows.map((r) => r.name))
+
+  const keep = (entry, axes, source) => (rating) =>
+    list.add({ rating, lookup: wineRow(entry, axes), source }).catch((e) => setError(e.message))
 
   function clear() {
     setError(null); setResult(null); setBottle(null); setSkipped(null); setThumb(null)
@@ -217,14 +248,45 @@ export default function Wine() {
       {error && <div className="err">{error}</div>}
       {thumb && <img className="thumb" src={thumb} alt="what you photographed" />}
 
-      {result && <Results result={result} skipped={skipped} />}
-      {bottle && <Bottle {...bottle} />}
+      {result && <Results result={result} skipped={skipped} keep={keep} saved={saved} />}
+      {bottle && (
+        <Bottle {...bottle} keep={keep(bottle.found, bottle.axes, mode === 'bottle' ? 'label' : 'lookup')} saved={saved.has(bottle.found.raw)} />
+      )}
+
+      <h2>Your wines</h2>
+      <p className="meta">Shared with the household. Beer and spirits are not.</p>
+      {list.error && <div className="err">{list.error}</div>}
+      <DrinkList
+        rows={list.rows}
+        loading={list.loading}
+        onRate={list.rate}
+        onUnrate={list.unrate}
+        onDelete={list.remove}
+      />
 
       <p className="note">
         Ranking only, never a predicted score: {MODEL_VERSION} orders bottles well but
         predicts exact ratings poorly. Built from 23 red wines, so whites, rosé and
         sparkling are guesses. Beer and whiskey are read but not yet ranked.
       </p>
+    </div>
+  )
+}
+
+/**
+ * Save it. Rating it puts it straight in Tried; the plain save puts it in To
+ * try. Both are the same row one field apart, so nothing can end up in neither
+ * list or in both.
+ */
+function Keep({ keep, saved }) {
+  if (saved) return <div className="meta kept">Already on your list.</div>
+  return (
+    <div className="keepbox">
+      <div className="rateline">
+        <span className="ratelbl">Had it</span>
+        <Stars value={0} size={15} onChange={(n) => keep(n)} />
+      </div>
+      <button className="tryline" onClick={() => keep(null)}>or save it to try</button>
     </div>
   )
 }
@@ -238,7 +300,7 @@ const COLOR_CAVEAT = {
   fortified: 'fortified',
 }
 
-function Bottle({ found, axes, confidence, place }) {
+function Bottle({ found, axes, confidence, place, keep, saved }) {
   const meta = [found.producer, found.appellation || found.region, found.country,
     found.varietal, found.vintage].filter(Boolean).join(' · ')
 
@@ -277,6 +339,7 @@ function Bottle({ found, axes, confidence, place }) {
             <div className="badge">{standing(place)}</div>
           </div>
         </div>
+        <Keep keep={keep} saved={saved} />
       </div>
 
       {caveat && (
@@ -308,7 +371,7 @@ function Bottle({ found, axes, confidence, place }) {
 
 /* ---- a whole list --------------------------------------------------------- */
 
-function Results({ result, skipped }) {
+function Results({ result, skipped, keep, saved }) {
   const { ranked, unsure, unmatched } = result
   if (!ranked.length) {
     return (
@@ -334,6 +397,7 @@ function Results({ result, skipped }) {
             <div className="badge">{lead(ranked)}</div>
           </div>
         </div>
+        <Keep keep={keep(top.entry, top.axes, 'menu')} saved={saved.has(top.entry.raw)} />
       </div>
 
       <h2>Ranked</h2>
@@ -351,6 +415,14 @@ function Results({ result, skipped }) {
             <div className="why2">{r.axes.basis}</div>
           </div>
           {priceOf(r.entry) != null && <div className="price">${priceOf(r.entry)}</div>}
+          <button
+            className="keep"
+            disabled={saved.has(r.entry.raw)}
+            onClick={() => keep(r.entry, r.axes, 'menu')(null)}
+            aria-label={`save ${r.entry.raw} to try`}
+          >
+            {saved.has(r.entry.raw) ? 'saved' : '+'}
+          </button>
         </div>
       ))}
 

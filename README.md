@@ -103,6 +103,30 @@ real" indistinguishable from "never looked", which is the entire value of checki
 Spirits get none of this. There is no open distillery database worth wiring, and the screen
 must not imply otherwise.
 
+## Saved lists, and who can see them
+
+Every drink you keep is one row in `sip_tastings`. A row with **no rating** is on your *To try*
+list; rating it is what moves it to *Tried*, which is ordered by your own score, best first.
+There is no status column -- a second field that could disagree with the rating is a bug waiting
+to happen -- and no way to be on both lists or neither.
+
+That ranking is **yours, not the model's**. palate-v1 ranks bottles you have *not* tried; Tried
+ranks the ones you have, using the scores you gave them. The two must not be read as the same
+number.
+
+**Wine is shared across the household. Beer and spirits are not.** Nate and Amanda keep one wine
+list with one rating per bottle, either of them can set or change it, and neither sees the
+other's whisky. The split is enforced in the RLS policy, not in the client, so the app queries
+all three categories identically and the database decides what comes back. Membership comes from
+`household_members(owner_id, member_email)`, which Stock already built and keys by email so a
+member can be added before they have ever signed in.
+
+    supabase/migrations/20260902_sip_shared_wine_and_lists.sql
+
+This repo is **not linked** to the suite project and that file is **not applied automatically**.
+Run it by hand before deploying anything that claims wine is shared, or the app will say so while
+the policy still says otherwise.
+
 ## Setup
 
     cp ../reading-app/.env .env      # VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY
@@ -114,6 +138,14 @@ dead-code-eliminated, the build "succeeds", and the deployed page is blank white
 is bundle size.
 
 ## The offline harness
+
+Two of them, for two different jobs.
+
+`VITE_HARNESS=1 npm run dev` swaps the auth client and the tastings store for in-memory fakes in
+`harness/`. Everything in Sip sits behind an email one-time code, so without this the saved lists
+cannot be looked at during development without a code from a live inbox -- and To try / Tried is a
+screen you have to see to judge. It is refused outright in a production build. It does **not**
+fake the model proxy, which still wants a real token, so lookups fail under it by design.
 
 `sip.py` is the CLI the ranking math was proven in. It is not the product, but it stays because
 it exercises the ranking end to end with no auth and no network:
@@ -139,8 +171,13 @@ it exercises the ranking end to end with no auth and no network:
   is paid, and the model already knows regional style.
 - **The anchors are load-bearing.** `src/data/anchors.json` calibrates the scorer against six of
   your own scored bottles. Change them and the axis scale drifts; refit `palate.json` if you do.
-- **Untested against a real menu photo.** The ranking math and the build are verified. The two
-  model calls have never run.
+- **Untested against a real menu photo.** The ranking math, the build and the saved lists are
+  verified. The model calls have never run against real input.
+- **The `source` tag has been lying since the brewery confirmer shipped.** A CHECK constraint on
+  the column allowed only `lookup` / `menu` / `import`, so every `label` and `+obdb` write was
+  rejected and fell back to `lookup` through the retry in `addTasting`. Ratings were never lost;
+  provenance always was. The migration widens the constraint -- drop the retry once it is
+  applied.
 
 ## Files
 

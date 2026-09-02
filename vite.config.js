@@ -1,3 +1,4 @@
+import { fileURLToPath, URL } from 'node:url'
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -29,8 +30,37 @@ export default defineConfig(({ mode }) => {
     )
   }
 
+  /* Everything in Sip is behind an email one-time code, so the saved lists
+   * cannot be looked at in development without a code from a live inbox. With
+   * VITE_HARNESS=1 the auth client and the tastings store are swapped for
+   * in-memory fakes (harness/) so the screens can actually be rendered and
+   * judged. Dev only, and refused outright in a production build so it can
+   * never be the reason a real deploy ships fake data. */
+  const harness = process.env.VITE_HARNESS === '1'
+  if (harness && mode === 'production') {
+    throw new Error('VITE_HARNESS=1 in a production build. The harness serves fake data.')
+  }
+
+  const at = (p) => fileURLToPath(new URL(p, import.meta.url))
+  const swap = {
+    [at('./src/lib/supabase.js')]: at('./harness/supabase.js'),
+    [at('./src/lib/tastings.js')]: at('./harness/tastings.js'),
+  }
+
+  /* resolve.alias matches the IMPORT SPECIFIER, and these modules are imported
+   * as './supabase' from lib and '../lib/supabase' from pages, so no single
+   * alias key catches them all. Resolve first, then swap on the resolved path. */
+  const harnessPlugin = {
+    name: 'sip-harness',
+    enforce: 'pre',
+    async resolveId(source, importer, options) {
+      const found = await this.resolve(source, importer, { ...options, skipSelf: true })
+      return found ? swap[found.id.split('?')[0]] || null : null
+    },
+  }
+
   return {
-    plugins: [react()],
+    plugins: harness ? [harnessPlugin, react()] : [react()],
     base: process.env.BASE_URL || '/',
   }
 })

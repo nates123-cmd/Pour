@@ -417,3 +417,47 @@ input[type="file"] { display: none; }
   appearance: none; background: none; border: 0; cursor: pointer;
   color: var(--ink-35); font-size: 19px; line-height: 1; padding: 0 2px;
 }
+
+/* ---- saved lists ---------------------------------------------------------
+ * To try / Tried reuses the mode strip rather than inventing a second filter
+ * device -- it is the same question the app already asks at the top of a tab
+ * (which view of this?), so it gets the same answer. See DESIGN.md. */
+.listfilter { margin-top: 14px; }
+
+/* Save-to-try, offered under the rating rather than beside it: rating is the
+ * common case and must stay the loud one. A rule under text, never a button. */
+.tryline {
+  display: block; margin: 14px 0 0;
+  appearance: none; background: none; border: 0; cursor: pointer;
+  padding: 0 1px 3px;
+  font-family: var(--text);
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: var(--ink-35);
+  border-bottom: 1px solid var(--rule-strong);
+}
+.tryline:disabled { border-bottom-color: var(--rule); cursor: default; }
+
+/* Inside a .pick, the save block is separated by the same hairline the note
+ * uses, so the card does not grow a second visual weight. */
+.keepbox { margin-top: 4px; padding-top: 14px; border-top: 1px solid var(--rule); }
+.kept { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--rule); }
+
+/* Per-row save on a ranked list. A plus, not a word: the row is already dense
+ * with a rank, a circle, a name, a reason and a price. */
+.keep {
+  flex: none; appearance: none; background: none; cursor: pointer;
+  border: 1px solid var(--rule-strong); border-radius: 0;
+  width: 26px; height: 26px; padding: 0;
+  align-self: center;
+  font-family: var(--text); font-size: 15px; line-height: 1;
+  color: var(--ink-60);
+}
+.keep:disabled {
+  width: auto; padding: 0 7px; border-color: var(--rule);
+  font-size: 9px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink-35); cursor: default;
+}
+
+.rowacts { flex: none; display: flex; align-items: flex-start; gap: 2px; }
+.kill.quiet { font-size: 14px; }

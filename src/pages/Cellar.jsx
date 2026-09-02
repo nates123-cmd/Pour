@@ -15,10 +15,12 @@
  * there is no open distillery database worth the wiring -- and this screen must
  * not imply otherwise.
  */
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { lookupDrink, readDrinkLabel } from '../lib/lookup'
 import { confirmBrewery, breweryPlace } from '../lib/brewery'
-import { listTastings, addTasting, rateTasting, deleteTasting, sourceTag } from '../lib/tastings'
+import { sourceTag } from '../lib/tastings'
+import { useDrinks } from '../lib/useDrinks'
+import { DrinkList } from '../components/DrinkList'
 import { Stars } from '../components/Stars'
 
 const COPY = {
@@ -42,18 +44,7 @@ export default function Cellar({ category }) {
   const [brewery, setBrewery] = useState(null)
   const [checked, setChecked] = useState(false)
   const [notFound, setNotFound] = useState(false)
-  const [rows, setRows] = useState([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    let live = true
-    setLoading(true)
-    listTastings(category)
-      .then((r) => live && setRows(r))
-      .catch((e) => live && setError(e.message))
-      .finally(() => live && setLoading(false))
-    return () => { live = false }
-  }, [category])
+  const list = useDrinks(category)
 
   function clear() {
     setError(null); setFound(null); setNotFound(false)
@@ -112,35 +103,23 @@ export default function Cellar({ category }) {
     }
   }
 
+  /* `rating` null saves it to To try. Same row, same write, one field apart --
+   * there is no second "wishlist" path that could drift from this one. */
   async function save(rating, lookup) {
     setBusy(true); setError(null)
     try {
-      const row = await addTasting({
-        category,
+      await list.add({
         rating,
         lookup,
         query: query.trim(),
         source: sourceTag(mode === 'label', !!brewery),
       })
-      setRows((r) => [row, ...r])
       setQuery(''); clear()
     } catch (err) {
       setError(err.message)
     } finally {
       setBusy(false)
     }
-  }
-
-  async function reRate(id, rating) {
-    const prev = rows
-    setRows((r) => r.map((x) => (x.id === id ? { ...x, rating } : x)))
-    try { await rateTasting(id, rating) } catch (e) { setRows(prev); setError(e.message) }
-  }
-
-  async function remove(id) {
-    const prev = rows
-    setRows((r) => r.filter((x) => x.id !== id))
-    try { await deleteTasting(id) } catch (e) { setRows(prev); setError(e.message) }
   }
 
   const c = COPY[category]
@@ -207,6 +186,9 @@ export default function Cellar({ category }) {
             <span className="ratelbl">Rate it</span>
             <Stars value={0} onChange={(n) => save(n, found)} />
           </div>
+          <button className="tryline" disabled={busy} onClick={() => save(null, found)}>
+            or save it to try
+          </button>
         </div>
       )}
 
@@ -219,28 +201,21 @@ export default function Cellar({ category }) {
             <span className="ratelbl">Rate it</span>
             <Stars value={0} onChange={(n) => save(n, null)} />
           </div>
+          <button className="tryline" disabled={busy} onClick={() => save(null, null)}>
+            or save it to try
+          </button>
         </div>
       )}
 
-      <h2>{loading ? 'Loading' : `Logged (${rows.length})`}</h2>
-      {!loading && rows.length === 0 && (
-        <div className="held"><span>Nothing yet. Look one up above.</span></div>
-      )}
-      {rows.map((r) => (
-        <div className="row logged" key={r.id}>
-          <div className="name selectable">
-            {r.name}
-            <div className="meta">
-              {[r.producer, r.style, r.abv != null ? `${r.abv}%` : null]
-                .filter(Boolean).join(' · ') || '—'}
-            </div>
-            <Stars value={r.rating} size={13} onChange={(n) => reRate(r.id, n)} />
-          </div>
-          <button className="kill" onClick={() => remove(r.id)} aria-label={`delete ${r.name}`}>
-            ×
-          </button>
-        </div>
-      ))}
+      <h2>Your {category === 'beer' ? 'beer' : 'spirits'}</h2>
+      {list.error && <div className="err">{list.error}</div>}
+      <DrinkList
+        rows={list.rows}
+        loading={list.loading}
+        onRate={list.rate}
+        onUnrate={list.unrate}
+        onDelete={list.remove}
+      />
     </div>
   )
 }
