@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { readMenu } from '../lib/menu'
 import { readBottleLabel, searchWine } from '../lib/bottle'
 import { scoreWines } from '../lib/score'
-import { rank, placeInCellar, priceOf, CONFIDENCE_FLOOR, MODEL_VERSION } from '../lib/palate'
+import { rank, placeInCellar, palateMatch, priceOf, CONFIDENCE_FLOOR, MODEL_VERSION } from '../lib/palate'
 import { useDrinks } from '../lib/useDrinks'
 import { DrinkList } from '../components/DrinkList'
 import { Stars } from '../components/Stars'
@@ -29,8 +29,10 @@ const SHOOT = { list: 'Photograph a wine list', bottle: 'Photograph the bottle' 
 /**
  * Position on the palate scale, from `rel` — distance from a baseline average.
  * For a list that baseline is the list; for one bottle it is your own cellar.
- * `rel` is the only fit number the model is honest enough to surface;
- * `fitIndex` looks like a star rating and must never reach the screen.
+ * `rel` is a RELATIVE quantity and the circle is the only place it appears; the
+ * absolute number beside it is `palateMatch`, measured against the cellar and
+ * therefore comparable between lists. Neither is `fitIndex`, which looks like a
+ * star rating and must never reach the screen.
  * See DESIGN.md for what the colours mean.
  */
 function step(rel) {
@@ -61,6 +63,30 @@ function standing({ ahead, of }) {
   if (ahead === 0) return `Behind all ${of} you have rated`
   if (ahead === of) return `Ahead of all ${of} you have rated`
   return `Ahead of ${ahead} of the ${of} you have rated`
+}
+
+/**
+ * The score, and the reason it is allowed to exist.
+ *
+ * palate-v1 cannot predict a rating, so this is not one. It is a percentile
+ * against the spread of the 23 bottles he has actually rated, built out of
+ * ordering, which is the thing the model does well. Not on the 1-5 scale, and
+ * not in the same type as the rating circles. See DESIGN.md.
+ *
+ * The sub-line says where the scale comes from rather than repeating a count.
+ * The literal count is a DIFFERENT claim and lives in the badge above -- two
+ * numbers that mean two things, each said once.
+ */
+function Score({ axes }) {
+  return (
+    <div className="score">
+      <b>{palateMatch(axes).score}</b>
+      <span>
+        Palate match
+        <i>Against the 23 bottles you have rated</i>
+      </span>
+    </div>
+  )
 }
 
 /**
@@ -265,9 +291,11 @@ export default function Wine() {
       />
 
       <p className="note">
-        Ranking only, never a predicted score: {MODEL_VERSION} orders bottles well but
-        predicts exact ratings poorly. Built from 23 red wines, so whites, rosé and
-        sparkling are guesses. Beer and whiskey are read but not yet ranked.
+        The score is a palate match, never a predicted rating: 0 to 100 against the
+        spread of the 23 bottles you have rated. {MODEL_VERSION} orders bottles well
+        and predicts exact ratings badly, so the number is built out of the ordering.
+        All 23 are red, so whites, rosé and sparkling are guesses. Beer and whiskey
+        are read but not yet ranked.
       </p>
     </div>
   )
@@ -337,6 +365,7 @@ function Bottle({ found, axes, confidence, place, keep, saved }) {
             <div className="why selectable">{axes.basis}</div>
             {meta && <div className="meta selectable">{meta}</div>}
             <div className="badge">{standing(place)}</div>
+            <Score axes={axes} />
           </div>
         </div>
         <Keep keep={keep} saved={saved} />
@@ -357,7 +386,18 @@ function Bottle({ found, axes, confidence, place, keep, saved }) {
         <div><span>Tannin</span><b>{axes.tannin}</b></div>
         <div><span>Savoury</span><b>{axes.savory}</b></div>
         <div><span>Aromatic lift</span><b>{axes.aromaticLift}</b></div>
+        {axes.dryness != null && (
+          <div><span>Dryness</span><b>{axes.dryness}</b></div>
+        )}
       </div>
+      {axes.dryness != null && (
+        <p className="note">
+          Dryness is perceived dryness, not residual sugar: ripe fruit and new oak read
+          as sweetness in a wine that has none. It is described here, not ranked on. The
+          three axes above it are the ones palate-v1 was fitted on; dryness is the only
+          one with no anchor among your own 23 bottles.
+        </p>
+      )}
 
       {/* Names only, no ratings: the nearest bottle's real score printed beside a
           new bottle would read as a prediction for the new bottle. */}
@@ -395,6 +435,7 @@ function Results({ result, skipped, keep, saved }) {
             <div className="name selectable">{top.entry.raw}</div>
             <div className="why selectable">{top.axes.basis}</div>
             <div className="badge">{lead(ranked)}</div>
+            <Score axes={top.axes} />
           </div>
         </div>
         <Keep keep={keep(top.entry, top.axes, 'menu')} saved={saved.has(top.entry.raw)} />
@@ -412,7 +453,13 @@ function Results({ result, skipped, keep, saved }) {
           />
           <div className="name selectable">
             {r.entry.raw}
-            <div className="why2">{r.axes.basis}</div>
+            {/* The dot already says where this sits on THIS list. The number says
+                where it sits against the cellar, which is the same on every list
+                and therefore the one worth carrying between them. */}
+            <div className="why2">
+              <b className="rowscore">{palateMatch(r.axes).score}</b>
+              {r.axes.basis}
+            </div>
           </div>
           {priceOf(r.entry) != null && <div className="price">${priceOf(r.entry)}</div>}
           <button

@@ -87,6 +87,72 @@ const CELLAR_MEAN = CELLAR.reduce((t, w) => t + w.fit, 0) / CELLAR.length
  * read as a prediction for the new bottle -- exactly the thing palate-v1 cannot
  * do. The names alone are enough: you remember what you thought of them.
  */
+/**
+ * A score, and an honest one.
+ *
+ * The thing palate-v1 cannot do is predict a rating: leave-one-out R^2 is 0.33,
+ * so "this is a 4.2" is a number with no right to be on screen. What it CAN do
+ * is order bottles -- 72.7% pairwise overall, 92.3% on bottles at least 1.5
+ * stars apart. So the score is built out of ordering rather than prediction: it
+ * is a percentile against the 23 bottles he has actually rated.
+ *
+ * That also fixes a real gap. `rel` is distance from whatever list happens to be
+ * in the photograph, so the best bottle on a bad list and the best bottle on a
+ * great list read the same. This is measured against a fixed reference, so two
+ * bottles scanned on different nights are comparable.
+ *
+ * WHY IT IS NOT THE PLAIN EMPIRICAL PERCENTILE. That was the first version, and
+ * the offline dry-run killed it: a good wine list runs off the top of a
+ * 23-bottle cellar, so the top three bottles all scored 100 and the bottom three
+ * all scored 0. Every statement was true and the number had stopped being a
+ * score exactly where it would be used -- choosing between the good ones.
+ *
+ * So the percentile is taken against a normal fitted to those 23 fits rather
+ * than against the 23 as a bag of items. It is smooth, it never saturates, and
+ * it is still entirely his own cellar setting the scale: nothing but the mean
+ * and spread of bottles he has rated goes into it. Clamped to 1..99, because 0
+ * and 100 are certainties and this model has none. The literal count is still
+ * available and still shown -- see `placeInCellar().ahead`, which is the
+ * sub-line under the number.
+ */
+const CELLAR_SD = Math.sqrt(
+  CELLAR.reduce((t, w) => t + (w.fit - CELLAR_MEAN) ** 2, 0) / (CELLAR.length - 1),
+)
+
+/**
+ * Abramowitz & Stegun 7.1.26, max error 1.5e-7 -- far past what 23 bottles
+ * justify, but the alternative is a dependency.
+ *
+ * This approximates erf(x). The normal CDF needs erf(z / sqrt(2)), NOT erf(z),
+ * and passing z straight in is the bug that shipped for about ten minutes here:
+ * it made the distribution too narrow, so the top four bottles on the sample
+ * menu all clamped to 99 and the score saturated again in a new way. Only the
+ * cross-check against sip.py's math.erf caught it, which is the entire reason
+ * the two rankers are kept in step.
+ */
+function erf(x) {
+  const t = 1 / (1 + 0.3275911 * Math.abs(x))
+  const y =
+    1 -
+    ((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) * t +
+      0.254829592) *
+      t *
+      Math.exp(-x * x)
+  return x >= 0 ? y : -y
+}
+
+const normalCdf = (z) => 0.5 * (1 + erf(z / Math.SQRT2))
+
+export function palateMatch(axes) {
+  const fit = fitIndex(axes)
+  const pct = 100 * normalCdf((fit - CELLAR_MEAN) / CELLAR_SD)
+  return {
+    score: Math.min(99, Math.max(1, Math.round(pct))),
+    beats: CELLAR.filter((w) => w.fit < fit).length,
+    of: CELLAR.length,
+  }
+}
+
 export function placeInCellar(axes, nearCount = 3) {
   const fit = fitIndex(axes)
   const near = [...CELLAR]

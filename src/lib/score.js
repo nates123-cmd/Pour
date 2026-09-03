@@ -37,8 +37,8 @@ const anchorBlock = () =>
     .map((w) => `  ${w.name}: tannin ${w.tannin}, savory ${w.savory}, aromatic_lift ${w.aromaticLift}`)
     .join('\n')
 
-const SYSTEM = () => `You score wines on three style axes. These estimates feed a numeric ranking
-model, so consistency with the anchor examples matters more than nuance.
+const SYSTEM = () => `You score wines on style axes. Three of them feed a numeric ranking model,
+so consistency with the anchor examples matters more than nuance.
 
 Axes, each 1-10:
   tannin        - astringency and grip. 1 = Frappato or Gamay, 5 = a Grenache blend, 10 = young Barolo.
@@ -46,20 +46,28 @@ Axes, each 1-10:
                   1 = fruit-bomb New World red, 10 = Etna Rosso or old-school Bandol.
   aromatic_lift - floral, perfumed, high-toned aromatics. 1 = heavily oaked Cabernet,
                   10 = Frappato, cru Beaujolais, Nerello Mascalese.
+  dryness       - PERCEIVED dryness on the palate, not residual sugar alone. Ripe fruit and
+                  new-oak vanillin read as sweetness even at 0 g/L, so a jammy high-alcohol
+                  Grenache is NOT a 10. 1 = a sweet wine (Port, recioto, Lambrusco dolce),
+                  4 = overtly jammy and oak-sweet New World red, 7 = a ripe but dry Rhone,
+                  10 = bone dry and austere (Etna Rosso, traditional Nebbiolo, Loire Cabernet
+                  Franc). Most dry reds land 6-10; use the full range within that.
 
-Score STYLE, not quality. An excellent heavy oaked wine still scores low aromatic_lift.
+Score STYLE, not quality. An excellent heavy oaked wine still scores low aromatic_lift, and a
+sweet wine is not a worse wine for scoring low dryness.
 
 Infer from producer, appellation, varietal and vintage. If you do not recognise the producer,
 infer from appellation and varietal alone and LOWER your confidence. Set confidence below 0.4
 when you are essentially guessing. Do not silently guess at high confidence - abstaining is
 better than a confident wrong answer here.
 
-Anchor examples, already scored on this exact scale:
+Anchor examples, already scored on this exact scale. They cover the three ranking axes only --
+there is no dryness anchor, so judge dryness from the reference points above:
 ${anchorBlock()}
 
 Return ONLY a JSON object, no prose and no code fence:
 {"scores": [{"raw": "...", "tannin": 1-10, "savory": 1-10, "aromatic_lift": 1-10,
-"confidence": 0.0-1.0, "basis": "one short clause"}]}
+"dryness": 1-10, "confidence": 0.0-1.0, "basis": "one short clause"}]}
 
 Copy each "raw" back VERBATIM from the input so the results can be joined.`
 
@@ -92,6 +100,11 @@ export async function scoreWines(wines) {
       tannin: clamp(s?.tannin),
       savory: clamp(s?.savory),
       aromaticLift: clamp(s?.aromatic_lift ?? s?.aromaticLift),
+      /* Descriptive only: dryness is shown, never ranked on. It is also the one
+       * axis with no anchor from his own bottles, so it must never be able to
+       * drop a wine out of the ranking -- hence null-tolerant, and absent from
+       * the filter below. */
+      dryness: clamp(s?.dryness),
       confidence: Math.max(0, Math.min(1, Number(s?.confidence) || 0)),
       basis: String(s?.basis ?? '').trim(),
     }))

@@ -16,7 +16,7 @@ Usage:
   sip.py rank --dry-run fixtures/sample_menu.json     # no API key needed
 """
 
-import argparse, base64, json, os, subprocess, sys, tempfile
+import argparse, base64, json, math, os, subprocess, sys, tempfile
 from pathlib import Path
 from typing import List, Optional, Literal
 
@@ -207,17 +207,49 @@ def palate_score(axes, coef, mu, sd, intercept, s: AxisScore) -> float:
     return total
 
 
+def cellar_fits():
+    """Fit index for each of the 23 anchor bottles, the reference the score is a
+    percentile against. Same set and same maths as CELLAR in src/lib/palate.js."""
+    axes, coef, mu, sd, intercept = load_palate()
+    fits = []
+    for w in json.loads(ANCHORS_PATH.read_text())["wines"]:
+        total = intercept
+        for a in axes:
+            total += coef[a] * (w[a] - mu[a]) / sd[a]
+        fits.append(total)
+    return fits
+
+
+def palate_match(fit: float, fits) -> int:
+    """The 0-100 palate match: where this bottle falls in the spread of the 23
+    bottles he has actually rated. Built out of ordering, not prediction.
+
+    Taken against a normal fitted to those 23 rather than against the 23 as a
+    bag of items: a good list runs off the top of a 23-bottle cellar, and the
+    plain empirical percentile gave three 100s and three 0s on the sample menu
+    -- true, and useless for choosing between the good ones. Clamped to 1..99
+    because 0 and 100 are certainties this model does not have.
+
+    Must stay identical to palateMatch() in src/lib/palate.js."""
+    mean = sum(fits) / len(fits)
+    sd = (sum((f - mean) ** 2 for f in fits) / (len(fits) - 1)) ** 0.5
+    pct = 100 * 0.5 * (1 + math.erf((fit - mean) / (sd * math.sqrt(2))))
+    return min(99, max(1, round(pct)))
+
+
 def rank(entries: List[MenuEntry], scores: List[AxisScore]):
     axes, coef, mu, sd, intercept = load_palate()
+    fits = cellar_fits()
     by_raw = {s.raw: s for s in scores}
     out = []
     for e in entries:
         s = by_raw.get(e.raw)
         if s is None:
             continue
+        fit = palate_score(axes, coef, mu, sd, intercept, s)
         out.append({
-            "entry": e, "axes": s,
-            "fit": palate_score(axes, coef, mu, sd, intercept, s),
+            "entry": e, "axes": s, "fit": fit,
+            "match": palate_match(fit, fits),
         })
     out.sort(key=lambda r: (-r["fit"]))
     return out
@@ -256,14 +288,16 @@ def render(ranked, top, max_price, verbose):
         print(f"             {pick['axes'].basis}" + (f"   ${pr:.0f}" if pr else ""))
         print()
 
-    print(f"  Ranked ({len(confident)} scored with confidence):")
+    print(f"  Ranked ({len(confident)} scored with confidence)"
+          f"   [match = 0-100 against the spread of your 23 rated bottles]:")
     for i, r in enumerate(confident[:top], 1):
         e, a = r["entry"], r["axes"]
         pr = price_of(e)
         tag = f" ${pr:.0f}" if pr else ""
-        print(f"   {i:2d}. {e.raw[:62]:62s}{tag}")
+        print(f"   {i:2d}. {r['match']:3d}  {e.raw[:57]:57s}{tag}")
         if verbose:
             print(f"       tannin {a.tannin}  savory {a.savory}  lift {a.aromatic_lift}"
+                  f"   match {r['match']:3d}"
                   f"   {r['rel']:+.2f} vs list avg   conf {a.confidence:.2f}")
             print(f"       {a.basis}")
 

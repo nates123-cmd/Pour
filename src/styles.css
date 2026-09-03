@@ -245,9 +245,10 @@ input[type="file"] { display: none; }
   margin-top: 5px;
 }
 
-/* The three style axes behind a single bottle's placement. Enumerable, so it
+/* The style axes behind a single bottle's placement — the three it was ranked
+ * on, plus dryness, which is described and not ranked on. Enumerable, so it
  * gets the book's hairline-separated stack rather than a row of big numbers —
- * three stats side by side is a dashboard, which is the look this app climbed
+ * four stats side by side is a dashboard, which is the look this app climbed
  * out of. Label left, figure right, in the display face. */
 .axes > div {
   display: flex; justify-content: space-between; align-items: baseline;
@@ -461,3 +462,46 @@ input[type="file"] { display: none; }
 
 .rowacts { flex: none; display: flex; align-items: flex-start; gap: 2px; }
 .kill.quiet { font-size: 14px; }
+
+/* ---- the palate match score ----------------------------------------------
+ * A number the app spent its whole life refusing to show, so it is drawn to
+ * say what it is. It is a percentile against the 23 bottles he has rated --
+ * never a predicted rating, never on the 1-5 scale, and never in the same type
+ * as the star circles. Big figure in the display face, the caps label beside
+ * it, and under that the count it was computed from, because the honesty of
+ * this number is entirely in knowing where it came from. See DESIGN.md. */
+.score {
+  display: flex; align-items: baseline; gap: 12px;
+  margin-top: 18px; padding-top: 14px;
+  border-top: 1px solid var(--rule);
+}
+.score b {
+  font-family: var(--display);
+  font-size: 40px; font-weight: 600; line-height: .85;
+  letter-spacing: -.03em;
+  color: var(--ink);
+}
+.score span {
+  display: block;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--ink-35);
+}
+/* The provenance line. Sentence case and letterspaced normally -- it is read,
+ * not scanned, and caps at this length would be a wall. */
+.score span i {
+  display: block; margin-top: 5px;
+  font-style: normal; font-weight: 500;
+  font-size: 11px; letter-spacing: 0; text-transform: none;
+  color: var(--ink-60);
+}
+
+/* The same number on a ranked row, where there is no room to label it. It
+ * leads the caption line rather than taking a column of its own. */
+.rowscore {
+  font-family: var(--display);
+  font-weight: 600; font-style: normal;
+  font-size: 12px; letter-spacing: 0;
+  color: var(--ink);
+  margin-right: 7px;
+}

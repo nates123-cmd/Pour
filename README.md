@@ -103,6 +103,54 @@ real" indistinguishable from "never looked", which is the entire value of checki
 Spirits get none of this. There is no open distillery database worth wiring, and the screen
 must not imply otherwise.
 
+## The score
+
+Each wine gets a **palate match, 0-100**: where it falls in the spread of the 23 bottles you have
+actually rated, computed in `palateMatch()` from the same fit that drives the order.
+
+It is deliberately built out of ordering rather than prediction, because that is the half of the
+model that works: pairwise accuracy is 72.7% overall and 92.3% on bottles at least 1.5 stars
+apart, while leave-one-out R² on the rating itself is 0.33. So "you would give this a 4.2" is a
+sentence this model has no right to say, and it is not said anywhere.
+
+The score also fixes a real gap. `rel` is distance from *this list's* average, so the best bottle
+on a terrible list and the best bottle on a great list look identical. The percentile is measured
+against a fixed reference -- your own cellar -- so two bottles scanned on different nights are
+comparable. Both are on screen: the coloured circle is `rel`, the number is the percentile.
+
+**It is a percentile against a normal fitted to those 23, not against the 23 as a bag of items,
+and that is not a detail.** The plain empirical percentile was the first version and the offline
+dry-run killed it: a good wine list runs off the top of a 23-bottle cellar, so the top three
+bottles all scored 100 and the bottom three all scored 0. Every statement was true and the number
+had stopped discriminating exactly where it would be used. The fitted version never saturates and
+is clamped to 1-99, because 0 and 100 are certainties this model does not have. Only his own
+bottles set the scale -- nothing but their mean and spread goes in.
+
+The literal count is a **different claim** and is shown separately, in the badge above the score
+("ahead of 20 of the 23 you have rated"). Two numbers, two meanings, each said once.
+
+`sip.py rank --dry-run` prints the same score, and the two implementations must stay in step:
+JavaScript has no `erf`, so `palate.js` carries an Abramowitz & Stegun approximation while
+`sip.py` uses `math.erf`. Cross-checking them is what caught the normal CDF being fed `z` instead
+of `z / sqrt(2)` -- a bug that re-saturated the top of every list at 99 and looked perfectly
+plausible on screen.
+
+## Dryness, and why it is not ranked on
+
+The style stack under a single bottle has four rows now. Three of them -- tannin, savoury,
+aromatic lift -- are the axes `palate.json` was fitted on. **Dryness is described, not ranked
+on**, and it is not in `axesUsed`.
+
+It is *perceived* dryness rather than residual sugar, because ripe fruit and new-oak vanillin
+read as sweetness in a wine with none: a jammy high-alcohol Grenache is not a 10. That framing is
+what makes it vary across dry reds instead of flatlining at 9.
+
+It is also the weakest number on the screen, and the app says so. The other three axes are
+calibrated by six of his own scored bottles few-shotted into the prompt; the 23 anchors carry
+`acid`, `body`, `tannin`, `oak`, `fruitRipeness`, `savory` and `aromaticLift` -- **no dryness** --
+so it is anchored only on the style reference points written into the prompt. Score the 23 for
+dryness and refit if you ever want it in the model.
+
 ## Saved lists, and who can see them
 
 Every drink you keep is one row in `sip_tastings`. A row with **no rating** is on your *To try*
@@ -155,8 +203,10 @@ it exercises the ranking end to end with no auth and no network:
 ## Honest limits
 
 - **It ranks, it does not rate.** palate-v1 predicts your exact score poorly (leave-one-out
-  R² 0.33) but ranks well (92% correct on bottles far apart). Nothing in the UI shows a
-  predicted star score.
+  R² 0.33) but ranks well (92% correct on bottles far apart). The 0-100 palate match is a
+  percentile built out of that ordering; nothing in the UI shows a predicted star score.
+- **Dryness is uncalibrated.** It is the one axis with no anchor among the 23, so it rests on
+  the prompt's reference points alone. Shown, never ranked on.
 - **Reds only.** All 23 training bottles are red. Whites, rosé and sparkling are guesses. A
   single bottle says so on screen, because there the caveat is the whole answer rather than
   a footnote under a list.

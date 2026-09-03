@@ -126,18 +126,34 @@ second copy of the markup drifts out of sync and then misleads.
 These come from the model, not from taste, and the design must not fight them.
 
 - **Never show a predicted star score for a wine.** `fitIndex` looks like a
-  rating and is not one. Show `rel`, as a circle and as a position in the order.
-- **The ranked list is an order, not a scoreboard.** Nothing on screen may
-  suggest a wine scored 4.2 out of 5.
+  rating and is not one. Show `rel` as a circle, and the palate match as the
+  number.
+- **The palate match score is allowed. A predicted rating is not.** These are
+  easy to confuse, so: the score is a **percentile against the spread of the 23
+  bottles he has rated** (`palateMatch()`), built out of ordering, which is the
+  thing palate-v1 does well. It runs 0-100, never 1-5, it sits in the display
+  face and never in the rating circles. What stays banned is a number on the
+  1-5 scale: "4.2 out of 5" is a prediction the model cannot make. Do not "fix"
+  the score by deleting it, and do not rescale it to five.
+- **The score and the count are two different claims.** The number is the
+  percentile; the badge above it is the literal position ("ahead of 20 of the
+  23 you have rated"). Say each once. Putting the count in the score's own
+  sub-line makes the number look like it was counted, which it was not.
 - **A single bottle gets a rank, not a verdict.** "Ahead of 21 of the 23 you
-  have rated" is a position among real bottles. "4.3 stars" is not available and
-  never will be from this model.
+  have rated" is a position among real bottles, and it is the sub-line under
+  the score for exactly that reason.
 - **Never print a cellar bottle's real rating beside a new one.** Under "closest
   in your cellar" the anchors are names only. Their true scores are in the data
   and putting one next to a new bottle reads as a prediction for the new bottle,
   which is the banned thing wearing a disguise.
 - **The style axes are style, never quality.** A 9 for tannin is not a good
   score, and the heading says "1 to 10" rather than "out of 10" for that reason.
+- **Dryness is described, never ranked on.** It is the fourth row in the style
+  stack and it is *not* in `palate.json`'s `axesUsed`. It is also the only axis
+  with no anchor among his own 23 bottles, so it is the least trustworthy number
+  on the screen and the note under the stack says so. Adding it to the
+  regression would invalidate the fitted coefficients; if you ever want it
+  ranked on, score the 23 for dryness first and refit.
 - **Show both outcomes of the brewery check.** Printing nothing when a brewery
   is unconfirmed makes "checked and real" look identical to "never looked",
   which is the whole value of checking. And an unconfirmed brewery is reported
