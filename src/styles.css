@@ -505,3 +505,14 @@ input[type="file"] { display: none; }
   color: var(--ink);
   margin-right: 7px;
 }
+
+/* The corroborated producer, as a link out to the record that corroborated it.
+ * A rule under text, the book's only link device -- being told a distillery
+ * checked out and being able to go and read about it are different things, and
+ * the second is worth one hairline. */
+.conflink {
+  color: var(--ink-60);
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule-strong);
+  -webkit-user-select: text; user-select: text;
+}

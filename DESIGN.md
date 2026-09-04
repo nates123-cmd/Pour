@@ -154,11 +154,17 @@ These come from the model, not from taste, and the design must not fight them.
   on the screen and the note under the stack says so. Adding it to the
   regression would invalidate the fitted coefficients; if you ever want it
   ranked on, score the 23 for dryness first and refit.
-- **Show both outcomes of the brewery check.** Printing nothing when a brewery
-  is unconfirmed makes "checked and real" look identical to "never looked",
-  which is the whole value of checking. And an unconfirmed brewery is reported
-  as unconfirmed, never as wrong: four of seventeen real breweries missed in
-  testing, so a miss is weak evidence and the copy must say so.
-- **Spirits get no corroboration furniture.** There is no open distillery
-  database, so the screen must not imply a check happened.
+- **Show both outcomes of the producer check.** Printing nothing when a
+  producer is unconfirmed makes "checked and real" look identical to "never
+  looked", which is the whole value of checking. And an unconfirmed producer is
+  reported as unconfirmed, never as wrong: several real distilleries and
+  breweries missed in testing, small and new ones most of all, so a miss is weak
+  evidence and the copy must say so.
+- **Spirits DO get corroboration now, and a link.** This rule used to read "no
+  open distillery database exists, so the screen must not imply a check
+  happened". That was an assertion nobody had tested, and it was false: Wikidata
+  types distilleries, breweries and drinks brands, free and without a key. A
+  confirmed producer links out to the record that confirmed it, because being
+  told something checked out and being able to go and read it are different
+  things.
 - Beer and Spirits rank nothing. Do not give them ranking furniture.

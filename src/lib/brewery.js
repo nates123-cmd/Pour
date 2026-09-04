@@ -9,8 +9,10 @@
  * Open Brewery DB is free, needs no key, and reflects the caller's origin in
  * its CORS headers, so the PWA calls it directly. No proxy, no credential.
  *
- * Breweries only. There is no equivalent for distilleries, so spirits get no
- * confirmation and the UI must not imply otherwise.
+ * Breweries only. Spirits are covered by wikidata.js, which also covers beer;
+ * both are combined in producer.js. This one is kept for beer because it knows
+ * things Wikidata does not -- city and state for small American breweries that
+ * have no encyclopedia entry at all.
  *
  * ---------------------------------------------------------------------------
  * THE TRAP: a non-empty response is not a match.
@@ -30,18 +32,9 @@
  * never as wrong.
  */
 
+import { norm, tokens, score, THRESHOLD } from './names'
+
 const API = 'https://api.openbrewerydb.org/v1/breweries/search'
-
-/** Words that carry no identity. "Brasserie Cantillon" is Cantillon. */
-const GENERIC = new Set([
-  'brewing', 'brewery', 'breweries', 'brewers', 'brew', 'beer', 'beers',
-  'company', 'co', 'inc', 'llc', 'ltd', 'the', 'and', 'brasserie',
-  'brouwerij', 'birrificio', 'cerveceria', 'brauerei', 'bryggeri',
-  'brewhouse', 'craft', 'works', 'kg', 'gmbh', 'sa', 'bv', 'nv',
-])
-
-/** Below this, say nothing. Abstaining beats a confident wrong answer. */
-const THRESHOLD = 0.75
 
 /**
  * "planning" breweries are filings, not breweries: paperwork for something that
@@ -53,25 +46,6 @@ const THRESHOLD = 0.75
  * beer, and refusing to corroborate it would be wrong.
  */
 const NOT_A_BREWERY = new Set(['planning'])
-
-const norm = (s) =>
-  (s || '')
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9 ]/g, ' ')
-
-const tokens = (s) => norm(s).split(/\s+/).filter((t) => t && !GENERIC.has(t))
-
-/** Share of the query's distinctive words the candidate accounts for. */
-function score(query, candidate) {
-  const a = new Set(tokens(query))
-  const b = new Set(tokens(candidate))
-  if (!a.size || !b.size) return 0
-  let hit = 0
-  for (const t of a) if (b.has(t)) hit++
-  return hit / a.size
-}
 
 /**
  * @param {string} producer  brewery name as the model gave it

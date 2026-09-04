@@ -73,35 +73,63 @@ typical list's that the colour thresholds need no second set of numbers.
 the nearest bottle's real score beside a new bottle would read as a prediction for the new
 bottle. The names alone are enough — you remember what you thought of them.
 
-## Beer and spirits: the one available check
+## Beer and spirits: corroborating the producer
 
-Both tabs take a typed name or a photograph of the label. The photo is the better of the
-two when the can is in your hand, because the model is reading rather than recalling.
+The half of a lookup a model is most likely to invent is the **producer** -- a plausible brewery
+in a plausible town. It is also the only part that can be checked against something outside the
+model, so it is checked against two open sources, and neither is trusted to say yes on its own.
 
-Neither is checked by the model itself, and the half a model is likeliest to invent is the
-producer: a plausible brewery in a plausible town. So for beer the producer is corroborated
-against **Open Brewery DB** — free, no key, and it reflects the caller's origin in its CORS
-headers, so the PWA calls it directly with no proxy and no new credential.
+| | source | free | key | CORS |
+| --- | --- | --- | --- | --- |
+| Beer | Open Brewery DB **and** Wikidata | yes | none | direct from the PWA |
+| Spirits | Wikidata | yes | none | direct from the PWA |
+| Wine | none, deliberately | | | |
 
-**The trap: a non-empty response is not a match.** It is a fuzzy search that almost always
-returns something. Ask it for "Brasserie Cantillon" and it returns Brasserie Chouffe,
-Brasserie du Moulin and Brasserie de Bastogne, with no Cantillon anywhere, because it
-matched on the word "Brasserie". Treating that as corroboration would hand a hallucinated
-brewery back wearing a confirmation, which is worse than never checking.
+Wine is not an oversight: a wine's producer is checked implicitly by the palate model, which has
+to place the bottle on a style scale before it can rank it at all.
 
-So `lib/brewery.js` strips the generic words, searches on what is left, and scores the
-results itself. Measured over 17 real breweries and 8 invented ones, a 0.75 token-overlap
-threshold confirms 13 of the real and **none** of the invented. Rows with
-`brewery_type: "planning"` are excluded — those are filings, not breweries, and a made-up
-"Saltmarsh Brewing" matched one during testing.
+**Spirits had nothing here until 2026-09-04**, and the reason was a false premise. This README
+used to say "there is no open distillery database worth the wiring". Nobody had checked. Wikidata
+types distilleries, breweries and drinks brands, and it carries a link.
 
-Four real breweries miss (Cloudwater, Birrificio Italiano, Fuller's, Schneider Weisse), and
-that is the right side to fail on. **A miss is reported as unconfirmed, never as wrong.**
-Both outcomes appear on screen, because showing nothing when unconfirmed makes "checked and
-real" indistinguishable from "never looked", which is the entire value of checking.
+### What it actually catches
 
-Spirits get none of this. There is no open distillery database worth wiring, and the screen
-must not imply otherwise.
+Measured the way the first version was: real producers on one side, invented ones on the other,
+scored here rather than trusted from the response.
+
+    real distilleries   16/20      real breweries   6/8      invented   0/14
+
+The misses are small or new craft producers -- Uncle Nearest, Westward, St. George Spirits, Clear
+Creek. That is the right side to fail on, and **an unconfirmed producer is reported as
+unconfirmed, never as fake**. Both outcomes appear on screen: printing nothing when unconfirmed
+would make "checked and real" indistinguishable from "never looked".
+
+### THE TRAP: a non-empty response is not a match
+
+Open Brewery DB is a fuzzy search that almost always returns *something*. Asking it for
+"Brasserie Cantillon" returns Brasserie Chouffe, Brasserie du Moulin and Brasserie de Bastogne,
+with no Cantillon anywhere -- it matched the word "Brasserie". Treating that as corroboration
+would take a hallucinated brewery and hand it back wearing a confirmation, which is worse than
+not checking at all. So both sources are scored in `names.js` at a threshold measured against
+invented names, and `brewery_type: "planning"` rows are excluded -- those are filings, not
+breweries, and an invented "Saltmarsh Brewing" matched one in Foxboro during testing.
+
+### Wikidata: what to know before touching it
+
+- **Not SPARQL.** query.wikidata.org works and scores identically. It also takes about **eight
+  seconds**, too slow even for a check that never blocks. CirrusSearch does the type filter
+  server-side with `haswbstatement:` and answers in roughly a third of a second, then one batched
+  `wbgetentities` fills in labels, aliases, website and the Wikipedia link.
+- **Search on the name AS GIVEN**, and score the *stripped* tokens. Feeding the
+  generic-stripped, punctuation-flattened string to a search engine lost Fuller's and Schneider
+  Weisse. Those are two different jobs.
+- **Score every label and alias in every language**, not the English label. Schneider Weisse is
+  typed as a brewery and has no English label, so it came back as a bare Q-id and scored zero
+  against its own name.
+- **`business` and `enterprise` are not accepted types.** They would confirm any plausible company
+  name, which is the whole failure this exists to prevent. Brands are accepted, because the
+  question is "did the model invent this producer", and Four Roses being a known alcohol brand
+  answers it.
 
 ## The score
 
@@ -213,8 +241,8 @@ it exercises the ranking end to end with no auth and no network:
 - **A bottle is identified twice over.** Which bottle it is, then what style it is. The
   placement is only as good as the weaker of the two, so the confidence floor is applied to
   `min(identification, scoring)` and below it nothing is placed at all.
-- **Wine only.** Beer and whiskey parse but have no palate model. Reported, not ranked. Beer
-  does get its brewery corroborated; see below.
+- **Wine only.** Beer and whiskey parse but have no palate model. Reported, not ranked. Both do
+  get their producer corroborated and linked; see above.
 - **Low-confidence wines are held back**, not ranked. "House Red" cannot be scored and guessing
   would be worse than abstaining.
 - **No wine database.** Axis scores are inferred from the name. Vivino has no API, Wine-Searcher
@@ -231,6 +259,9 @@ it exercises the ranking end to end with no auth and no network:
 
 ## Files
 
+    src/lib/names.js       producer-name matching, shared by both corroboration sources
+    src/lib/producer.js    asks both sources, merges the answers, writes the source tag
+    src/lib/wikidata.js    breweries AND distilleries, with a link  (no key, direct)
     src/lib/proxy.js       shared edge-function client, image downscale, JSON extraction
     src/lib/menu.js        list photo -> entries     (gemini-2.5-flash)
     src/lib/bottle.js      label photo -> one wine   (gemini-2.5-flash)

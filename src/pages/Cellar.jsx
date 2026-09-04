@@ -10,15 +10,14 @@
  * the label. The photo is the better one when the can is in your hand, because
  * the model is reading rather than recalling.
  *
- * Beer gets one more thing: the brewery is checked against Open Brewery DB. That
- * is the only free corroboration available for any of this. Spirits get none --
- * there is no open distillery database worth the wiring -- and this screen must
- * not imply otherwise.
+ * Both categories get one more thing: the producer is checked against open
+ * sources and linked. Beer goes to Open Brewery DB and Wikidata, spirits to
+ * Wikidata. Spirits had nothing here until 2026-09-04, on the incorrect belief
+ * that no open distillery database existed -- see lib/producer.js.
  */
 import { useRef, useState } from 'react'
 import { lookupDrink, readDrinkLabel } from '../lib/lookup'
-import { confirmBrewery, breweryPlace } from '../lib/brewery'
-import { sourceTag } from '../lib/tastings'
+import { confirmProducer, checksFor, sourceTag } from '../lib/producer'
 import { useDrinks } from '../lib/useDrinks'
 import { DrinkList } from '../components/DrinkList'
 import { Stars } from '../components/Stars'
@@ -41,14 +40,14 @@ export default function Cellar({ category }) {
   const [stage, setStage] = useState(null)
   const [error, setError] = useState(null)
   const [found, setFound] = useState(null)
-  const [brewery, setBrewery] = useState(null)
+  const [producer, setProducer] = useState(null)
   const [checked, setChecked] = useState(false)
   const [notFound, setNotFound] = useState(false)
   const list = useDrinks(category)
 
   function clear() {
     setError(null); setFound(null); setNotFound(false)
-    setBrewery(null); setChecked(false)
+    setProducer(null); setChecked(false)
   }
 
   function pickMode(id) {
@@ -57,18 +56,17 @@ export default function Cellar({ category }) {
   }
 
   /**
-   * Both paths land here. The brewery check is deliberately AFTER the drink is
-   * on screen and never blocks it: Open Brewery DB is a third party, and an
-   * outage there must cost a footnote, not the lookup.
+   * Both paths land here. The producer check is deliberately AFTER the drink is
+   * on screen and never blocks it: both sources are third parties, and an
+   * outage at either must cost a footnote, not the lookup.
    */
   async function settle(hit) {
     if (!hit) { setNotFound(true); return }
     setFound(hit)
 
-    if (category !== 'beer' || !hit.producer) return
-    setStage('Checking the brewery…')
-    const match = await confirmBrewery(hit.producer, hit.origin)
-    setBrewery(match)
+    if (!checksFor(category).length || !hit.producer) return
+    setStage(category === 'beer' ? 'Checking the brewery…' : 'Checking the distillery…')
+    setProducer(await confirmProducer(hit.producer, { category, origin: hit.origin }))
     setChecked(true)
   }
 
@@ -112,7 +110,7 @@ export default function Cellar({ category }) {
         rating,
         lookup,
         query: query.trim(),
-        source: sourceTag(mode === 'label', !!brewery),
+        source: sourceTag(mode === 'label', producer?.sources),
       })
       setQuery(''); clear()
     } catch (err) {
@@ -181,7 +179,7 @@ export default function Cellar({ category }) {
           {found.confidence < 0.4 && (
             <div className="meta">Not sure this is the right one. Check the name.</div>
           )}
-          <Corroboration checked={checked} brewery={brewery} />
+          <Corroboration checked={checked} producer={producer} category={category} />
           <div className="rateline">
             <span className="ratelbl">Rate it</span>
             <Stars value={0} onChange={(n) => save(n, found)} />
@@ -221,33 +219,45 @@ export default function Cellar({ category }) {
 }
 
 /**
- * What the brewery check found.
+ * What the producer check found.
  *
  * Both outcomes are shown. Printing nothing when unconfirmed would leave "we
  * checked and it is real" indistinguishable from "we never looked", which is
  * the whole value of checking.
  *
- * The unconfirmed wording matters and is not hedging for its own sake: over 17
- * real breweries, four genuinely present in the world did not match. So a miss
- * is worth a glance and is never evidence the beer is fake.
+ * The unconfirmed wording matters and is not hedging for its own sake. Over 20
+ * real distilleries and 8 real breweries, several genuinely present in the
+ * world did not match -- small and new producers most of all. So a miss is
+ * worth a glance and is never evidence the drink is fake.
+ *
+ * When a source has an article, it is linked. That is the difference between
+ * being told something checked out and being able to go and see.
  */
-function Corroboration({ checked, brewery }) {
+function Corroboration({ checked, producer, category }) {
   if (!checked) return null
+  const noun = category === 'beer' ? 'Brewery' : 'Distillery'
 
-  if (brewery) {
-    const place = breweryPlace(brewery)
+  if (producer) {
     return (
       <div className="conf">
-        <span>Brewery confirmed</span>
-        {brewery.name}{place ? `, ${place}` : ''}
+        <span>{noun} confirmed</span>
+        {producer.url ? (
+          <a className="conflink" href={producer.url} target="_blank" rel="noopener noreferrer">
+            {producer.name}{producer.place ? `, ${producer.place}` : ''}
+          </a>
+        ) : (
+          <>{producer.name}{producer.place ? `, ${producer.place}` : ''}</>
+        )}
       </div>
     )
   }
 
   return (
     <p className="note">
-      No brewery by that name in Open Brewery DB. Its coverage has real gaps, so this
-      is not evidence the beer is wrong, but it is worth a glance at the name.
+      No {noun.toLowerCase()} by that name in{' '}
+      {category === 'beer' ? 'Open Brewery DB or Wikidata' : 'Wikidata'}. Coverage has
+      real gaps, especially for small and new producers, so this is not evidence the
+      drink is wrong. It is worth a glance at the name.
     </p>
   )
 }
